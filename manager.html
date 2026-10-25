@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АРМ Менеджера — Запись клиента ПИН-АВТО</title>
+    
+    <link rel="icon" type="image/x-icon" href="favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
+    
+    <!-- Единая дизайн-система -->
+    <link rel="stylesheet" href="css.css">
+    <script src="js/manager.js" defer></script>
+</head>
+<body>
+
+<div style="max-width: 860px; margin: 0 auto; padding: 10px 0;">
+    <div class="dashboard-card">
+        
+        <div class="card-header-flex" style="border-bottom: 2px dashed var(--color-border-light); padding-bottom: 12px; margin-bottom: 18px;">
+            <div>
+                <h1 class="cabinet-page-title" style="font-size: 22px; margin: 0;">АРМ Менеджера / Колл-центр</h1>
+                <p class="cabinet-page-subtitle" style="margin: 3px 0 0 0;">Быстрое оформление сделки и бронирование поста в STOCRM по телефону</p>
+            </div>
+            <span class="status-badge" style="background: linear-gradient(to bottom, #dbeafe 0%, #bfdbfe 100%); border-color: #93c5fd; color: #1e40af;">Оператор сети</span>
+        </div>
+
+        <form id="managerBookingForm" onsubmit="handleManagerBookingSubmit(event)">
+            
+            <!-- Блок идентификации клиента -->
+            <div class="form-row">
+                <div class="form-group mb-0">
+                    <label for="mgrPhone">Номер телефона клиента *</label>
+                    <input type="tel" 
+                           id="mgrPhone" 
+                           placeholder="+7 (999) 000-00-00" 
+                           autocomplete="off" 
+                           required>
+                    <span id="mgrPhoneHint" class="field-hint">Введите номер для поиска карточки в CRM</span>
+                </div>
+                <div class="form-group mb-0">
+                    <label for="mgrName">ФИО клиента *</label>
+                    <input type="text" 
+                           id="mgrName" 
+                           placeholder="Фамилия Имя Отчество" 
+                           required>
+                    <span id="mgrClientTypeHint" class="field-hint">Автоматически заполняется из CRM</span>
+                </div>
+            </div>
+
+            <!-- Блок автопарка клиента -->
+            <div class="form-group" style="margin-top: 18px;">
+                <label for="mgrCarSelect">Выбор автомобиля клиента из базы CRM:</label>
+                <select id="mgrCarSelect" onchange="handleManagerCarChange()" disabled>
+                    <option value="">Сначала укажите номер телефона клиента</option>
+                </select>
+            </div>
+
+            <!-- Ручные поля / редактирование выбранного авто -->
+            <div id="mgrCarDetailsRow" class="form-row">
+                <div class="form-group mb-0">
+                    <label for="mgrCarBrandSelect">Марка автомобиля *</label>
+                    <select id="mgrCarBrandSelect" required>
+                        <option value="">-- Выберите марку --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-0">
+                    <label for="mgrCarPlate">Госномер *</label>
+                    <input type="text" id="mgrCarPlate" placeholder="О780ХМ123" required>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 18px;">
+                <label for="mgrCarVin">VIN-номер (передается в сделку):</label>
+                <input type="text" id="mgrCarVin" class="vin-box" style="height: 38px !important; width: 100%;" placeholder="X9FLXXEEBLCY58296">
+            </div>
+
+            <hr style="border: none; border-top: 1px dashed var(--color-border-light); margin: 22px 0;">
+
+            <!-- Блок филиала и поста -->
+            <div class="form-row">
+                <div class="form-group mb-0">
+                    <label for="mgrBranchSelect">Филиал обслуживания *</label>
+                    <select id="mgrBranchSelect" required>
+                        <option value="">-- Загрузка филиалов... --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-0">
+                    <label for="mgrPostSelect">Пост обслуживания *</label>
+                    <select id="mgrPostSelect" required disabled>
+                        <option value="">Сначала выберите филиал и дату</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Блок выбора даты -->
+            <div class="form-group" style="margin-top: 18px;">
+                <label>Дата визита *</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 12px; max-width: 400px;">
+                    <button type="button" class="week-btn active" id="btnWeekCurrent" onclick="switchWeekTab(0)">Эта неделя</button>
+                    <button type="button" class="week-btn" id="btnWeekNext" onclick="switchWeekTab(1)">Следующая неделя</button>
+                </div>
+                <div class="grid-v4" id="grid_v4"></div>
+                <input type="hidden" id="mgrDateSelect" required>
+            </div>
+
+            <!-- Индикатор загрузки поста -->
+            <div id="workloadBox" class="workload-box" style="display: none;">
+                <div class="workload-header">
+                    <span id="workloadTitle">Загруженность поста:</span>
+                    <span id="workloadPercent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="workloadFill" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <!-- Услуги -->
+            <div class="form-group" id="servicesWrapper" style="display: none;">
+                <label>Выберите работы по категориям:</label>
+                <div id="tabsContainer" class="tabs-container"></div>
+                <div id="tabContentsContainer"></div>
+            </div>
+
+            <!-- Сводка времени и стоимости -->
+            <div class="summary-box" id="summaryBox" style="display: none;">
+                <div>Итого времени: <span id="totalTime">0 мин</span></div>
+                <div>Оценочная стоимость: <span id="totalPrice">0 ₽</span></div>
+            </div>
+
+            <!-- Выбор слота -->
+            <div class="form-group">
+                <label>Свободные временные слоты *</label>
+                <div id="slotsContainer" class="slots-grid">
+                    <div class="slots-empty-notice" style="grid-column: 1 / -1;">
+                        📌 Выберите филиал, пост и дату визита
+                    </div>
+                </div>
+                <input type="hidden" id="mgrSelectedTime" required>
+            </div>
+
+            <!-- Комментарий оператора -->
+            <div class="form-group">
+                <label for="mgrComment">Служебный комментарий к сделке:</label>
+                <input type="text" id="mgrComment" placeholder="Запись оформлена через оператора колл-центра">
+            </div>
+
+            <button type="submit" class="submit-btn" id="mgrSubmitBtn" style="margin-top: 10px;">Записать клиента в STOCRM</button>
+        </form>
+
+        <div id="mgrBookingMsg" class="message"></div>
+
+    </div>
+</div>
+
+</body>
+</html>

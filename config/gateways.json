@@ -1,0 +1,21 @@
+{
+  "sms": {
+    "provider": "smsru",
+    "api_key": "D7A77952-C122-B7FF-121F-8B856301116F"
+  },
+  "telegram": {
+    "type": "gateway",
+    "gateway_token": "AAFVTgAAwcu9VdEpRcNcAdZr-2p5LioyGNb-vienwV44bA"
+  },
+  "smtp": {
+    "host": "smtp.yandex.ru",
+    "port": 465,
+    "username": "no-reply@pin-avto.ru",
+    "password": "ПАРОЛЬ_ПРИЛОЖЕНИЯ_ПОЧТЫ",
+    "from_name": "ПИН-АВТО"
+  },
+  "max": {
+    "api_url": "https://api.max.ru/v1/send",
+    "token": "СЕКРЕТНЫЙ_ТОКЕН"
+  }
+}

@@ -1,0 +1,717 @@
+{
+    "api_key": "10237_65c7b75c88422a33a75028efa12b2524",
+    "domain": "pin-avto",
+    "source_id": 10049,
+    "STOCRM_API_URL": "https:\/\/pin-avto.stocrm.ru",
+    "STOCRM_API_KEY": "10237_65c7b75c88422a33a75028efa12b2524",
+    "funnels": {
+        "retail": {
+            "NAME": "Онлайн-запись (Физлица)",
+            "TYPE": "phys",
+            "DEFAULT_STATUS_ID": 1,
+            "OFFER_CREATOR": "Онлайн запись API",
+            "TAGS": [
+                "Онлайн-запись",
+                "Розница"
+            ]
+        },
+        "b2b": {
+            "NAME": "Корпоративные клиенты (B2B)",
+            "TYPE": "legal",
+            "DEFAULT_STATUS_ID": 1,
+            "OFFER_CREATOR": "B2B Портал API",
+            "TAGS": [
+                "B2B",
+                "Корпоративный",
+                "Безнал"
+            ]
+        }
+    },
+    "default_requisites": {
+        "CUSTOMER_LEGAL_ENTITY_ID": 3,
+        "CUSTOMER_LEGAL_ENTITY_REQUISITE_ID": 3,
+        "DEFAULT_CUSTOMER_REQUISITE_ID": 5
+    },
+    "branches": {
+        "1": {
+            "CUSTOMER_ID": 1,
+            "CUSTOMER_NAME": "СЦ №7 Динская",
+            "ADDRESS": "ст. Динская, Федеральная трасса М4, 1308 км, 3",
+            "CITY_NAME": "Краснодар",
+            "ACTIVE": "Y",
+            "board_id": 2,
+            "board_id_retail": 2,
+            "board_id_b2b": 2,
+            "posts": {
+                "13": {
+                    "POST_ID": 13,
+                    "NAME": "Шиномонтаж пост № 3",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "71": {
+                    "POST_ID": 71,
+                    "NAME": "Шиномонтаж пост № 1",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "73": {
+                    "POST_ID": 73,
+                    "NAME": "Шиномонтаж пост № 2",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "75": {
+                    "POST_ID": 75,
+                    "NAME": "СТО пост № 1",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "77": {
+                    "POST_ID": 77,
+                    "NAME": "Мойка грузовых автомобилей пост № 2",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "79": {
+                    "POST_ID": 79,
+                    "NAME": "СТО пост № 3",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1435,
+                    "START": 0
+                },
+                "2": {
+                    "END": 1435,
+                    "START": 0
+                },
+                "3": {
+                    "END": 1435,
+                    "START": 0
+                },
+                "4": {
+                    "END": 1435,
+                    "START": 0
+                },
+                "5": {
+                    "END": 1435,
+                    "START": 0
+                },
+                "6": {
+                    "END": 1435,
+                    "START": 0
+                },
+                "7": {
+                    "END": 1435,
+                    "START": 0
+                }
+            },
+            "booking_enabled": false
+        },
+        "3": {
+            "CUSTOMER_ID": 3,
+            "CUSTOMER_NAME": "СЦ №13 Верхнебаканский",
+            "ADDRESS": "Краснодарский край, г. Новороссийск, Верхнебаканский п., ул. Баканская, д. 8А",
+            "CITY_NAME": "Новороссийск",
+            "ACTIVE": "Y",
+            "board_id": 3,
+            "board_id_retail": 3,
+            "board_id_b2b": 3,
+            "posts": {
+                "25": {
+                    "POST_ID": 25,
+                    "NAME": "№1",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            },
+            "booking_enabled": false
+        },
+        "5": {
+            "CUSTOMER_ID": 5,
+            "CUSTOMER_NAME": "СЦ №2 Дзержинского",
+            "ADDRESS": "г. Краснодар, ул. им. Дзержинского, д. 98\/7",
+            "CITY_NAME": "Краснодар",
+            "ACTIVE": "Y",
+            "board_id": 4,
+            "board_id_retail": 4,
+            "board_id_b2b": 4,
+            "posts": {
+                "15": {
+                    "POST_ID": 15,
+                    "NAME": "Стенд развал-схождение",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "17": {
+                    "POST_ID": 17,
+                    "NAME": "Слесарный",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "19": {
+                    "POST_ID": 19,
+                    "NAME": "Пост №2 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "21": {
+                    "POST_ID": 21,
+                    "NAME": "Пост №1 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "43": {
+                    "POST_ID": 43,
+                    "NAME": "Пост №3 Слесарный \/ Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            }
+        },
+        "7": {
+            "CUSTOMER_ID": 7,
+            "CUSTOMER_NAME": "СЦ №4 Тургеневское",
+            "ADDRESS": "Респ. Адыгея, Тахтамукайский р-н, п. Новая Адыгея, ул. Тургеневское шоссе, д. 4",
+            "CITY_NAME": "Краснодар",
+            "ACTIVE": "Y",
+            "board_id": 5,
+            "board_id_retail": 5,
+            "board_id_b2b": 5,
+            "posts": {
+                "27": {
+                    "POST_ID": 27,
+                    "NAME": "№1 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            },
+            "booking_enabled": false
+        },
+        "9": {
+            "CUSTOMER_ID": 9,
+            "CUSTOMER_NAME": "СЦ №5 Майкоп",
+            "ADDRESS": "г. Майкоп, ул. Хакурате, д. 555",
+            "CITY_NAME": "Майкоп",
+            "ACTIVE": "Y",
+            "board_id": 6,
+            "board_id_retail": 6,
+            "board_id_b2b": 6,
+            "posts": {
+                "29": {
+                    "POST_ID": 29,
+                    "NAME": "Пост №1 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "63": {
+                    "POST_ID": 63,
+                    "NAME": "Пост №2 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "65": {
+                    "POST_ID": 65,
+                    "NAME": "Пост №3 Развал-схождение",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "67": {
+                    "POST_ID": 67,
+                    "NAME": "Пост №4 Слесарный",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            },
+            "booking_enabled": false
+        },
+        "11": {
+            "CUSTOMER_ID": 11,
+            "CUSTOMER_NAME": "СЦ №8 Ставропольская",
+            "ADDRESS": "г. Краснодар, ул. Ставропольская, д. 214\/5",
+            "CITY_NAME": "Краснодар",
+            "ACTIVE": "Y",
+            "board_id": 7,
+            "board_id_retail": 7,
+            "board_id_b2b": 7,
+            "posts": {
+                "31": {
+                    "POST_ID": 31,
+                    "NAME": "Пост №1 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "69": {
+                    "POST_ID": 69,
+                    "NAME": "Пост №2 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            },
+            "EXCLUDE_FROM_PURCHASE_STATS": true,
+            "booking_enabled": false
+        },
+        "17": {
+            "CUSTOMER_ID": 17,
+            "CUSTOMER_NAME": "СЦ №10 Российская",
+            "ADDRESS": "г. Краснодар, ул. Российская, д. 339",
+            "CITY_NAME": "Краснодар",
+            "ACTIVE": "Y",
+            "board_id": 8,
+            "board_id_retail": 8,
+            "board_id_b2b": 8,
+            "posts": {
+                "23": {
+                    "POST_ID": 23,
+                    "NAME": "Пост № 1 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "53": {
+                    "POST_ID": 53,
+                    "NAME": "Пост № 2",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "55": {
+                    "POST_ID": 55,
+                    "NAME": "Пост № 3 Развал-схождения",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "57": {
+                    "POST_ID": 57,
+                    "NAME": "Пост № 4 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            },
+            "booking_enabled": false
+        },
+        "19": {
+            "CUSTOMER_ID": 19,
+            "CUSTOMER_NAME": "СЦ №11 Каневская",
+            "ADDRESS": "Краснодарский край, Каневская ст-ца, ул. Свердликова, д. 277Д",
+            "CITY_NAME": "Краснодар",
+            "ACTIVE": "Y",
+            "board_id": 9,
+            "board_id_retail": 9,
+            "board_id_b2b": 9,
+            "posts": {
+                "33": {
+                    "POST_ID": 33,
+                    "NAME": "№1 Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            },
+            "EXCLUDE_FROM_PURCHASE_STATS": true,
+            "booking_enabled": false
+        },
+        "21": {
+            "CUSTOMER_ID": 21,
+            "CUSTOMER_NAME": "СЦ №12 Геленджик",
+            "ADDRESS": "Краснодарский край, г. Геленджик, Геленджикский пр-кт, д. 310А",
+            "CITY_NAME": "Геленджик",
+            "ACTIVE": "Y",
+            "board_id": 10,
+            "board_id_retail": 10,
+            "board_id_b2b": 10,
+            "posts": {
+                "35": {
+                    "POST_ID": 35,
+                    "NAME": "№1",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            },
+            "booking_enabled": false
+        },
+        "23": {
+            "CUSTOMER_ID": 23,
+            "CUSTOMER_NAME": "СЦ №18 Карла Гусника",
+            "ADDRESS": "г. Краснодар, Березовый п., ул. им. Карла Гусника, д. 17",
+            "CITY_NAME": "Краснодар",
+            "ACTIVE": "Y",
+            "board_id": 11,
+            "board_id_retail": 11,
+            "board_id_b2b": 11,
+            "posts": {
+                "37": {
+                    "POST_ID": 37,
+                    "NAME": "Пост №1 Шиномонтаж  Легковой\/Грузовой",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "81": {
+                    "POST_ID": 81,
+                    "NAME": "Пост №2 Сход-развал",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "83": {
+                    "POST_ID": 83,
+                    "NAME": "Пост №3",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "85": {
+                    "POST_ID": 85,
+                    "NAME": "Пост №4",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "87": {
+                    "POST_ID": 87,
+                    "NAME": "Пост №5",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            },
+            "booking_enabled": false
+        },
+        "25": {
+            "CUSTOMER_ID": 25,
+            "CUSTOMER_NAME": "СЦ №19 Селезнева",
+            "ADDRESS": "г. Краснодар, ул. им. Селезнева, д. 197\/5",
+            "CITY_NAME": "Краснодар",
+            "ACTIVE": "Y",
+            "board_id": 12,
+            "board_id_retail": 12,
+            "board_id_b2b": 12,
+            "posts": {
+                "39": {
+                    "POST_ID": 39,
+                    "NAME": "№1 Пост Шиномонтаж",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1200,
+                    "START": 540
+                },
+                "6": {
+                    "END": 1140,
+                    "START": 540
+                },
+                "7": {
+                    "END": 1080,
+                    "START": 600
+                }
+            },
+            "booking_enabled": false
+        },
+        "27": {
+            "CUSTOMER_ID": 27,
+            "CUSTOMER_NAME": "Центральный Офис",
+            "ADDRESS": "ул. Дзержинского 98\/7",
+            "CITY_NAME": "Краснодар",
+            "ACTIVE": "Y",
+            "board_id": 13,
+            "board_id_retail": 13,
+            "board_id_b2b": 13,
+            "posts": {
+                "41": {
+                    "POST_ID": 41,
+                    "NAME": "№1",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "45": {
+                    "POST_ID": 45,
+                    "NAME": "2",
+                    "POST_TYPE": "DEFAULT"
+                },
+                "47": {
+                    "POST_ID": 47,
+                    "NAME": "3",
+                    "POST_TYPE": "DEFAULT"
+                }
+            },
+            "work_time": {
+                "1": {
+                    "END": 1080,
+                    "START": 540
+                },
+                "2": {
+                    "END": 1080,
+                    "START": 540
+                },
+                "3": {
+                    "END": 1080,
+                    "START": 540
+                },
+                "4": {
+                    "END": 1080,
+                    "START": 540
+                },
+                "5": {
+                    "END": 1080,
+                    "START": 540
+                }
+            },
+            "IS_TEST": true,
+            "EXCLUDE_FROM_STATS": true
+        }
+    }
+}

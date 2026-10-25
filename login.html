@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в личный кабинет — ПИН-АВТО</title>
+    
+    <link rel="icon" type="image/x-icon" href="favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
+    
+    <link rel="stylesheet" href="login.css">
+    <script src="js/login.js" defer></script>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card-box">
+        
+        <!-- Верхний пунктир -->
+        <div class="dashed-divider"></div>
+
+        <!-- Центрированная шапка: логотип и название -->
+        <div class="brand-header-row">
+            <img src="favicons/apple-touch-icon.png" alt="ПИН-АВТО" class="brand-logo-img">
+            <span class="brand-title-text">ПИН-АВТО</span>
+        </div>
+
+        <!-- Нижний пунктир -->
+        <div class="dashed-divider bottom"></div>
+
+        <!-- ================= ЭТАП 1: ВЫБОР РОЛИ И ИДЕНТИФИКАЦИЯ ================= -->
+        <div id="stepPhone">
+            <!-- Переключатель роли клиента -->
+            <div class="auth-tabs-row" id="authRoleTabs">
+                <button type="button" class="auth-tab-btn active" id="tabBtnB2C" onclick="switchAuthRole('b2c')">👤 Частный клиент</button>
+                <button type="button" class="auth-tab-btn" id="tabBtnB2B" onclick="switchAuthRole('b2b')">🏢 Юр. лицо (по ИНН)</button>
+            </div>
+
+            <!-- Вкладка: Частный клиент (B2C) -->
+            <div id="paneB2C" class="auth-tab-pane active">
+                <h1 class="auth-title">Вход в личный кабинет</h1>
+                <p class="auth-subtitle">Введите ваш номер телефона для входа</p>
+
+                <form id="phoneForm" onsubmit="handlePhoneSubmit(event)">
+                    <div class="form-group">
+                        <label for="identifier">Номер мобильного телефона</label>
+                        <input type="tel" 
+                               id="identifier" 
+                               class="auth-input-field" 
+                               placeholder="+7 (999) 000-00-00" 
+                               autocomplete="tel" 
+                               inputmode="numeric" 
+                               required 
+                               oninput="handleIdentifierInput()">
+                        <span class="field-hint">Укажите номер, зарегистрированный в сервисе</span>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="btnCheckPhone">Продолжить</button>
+                    <div id="phoneMsg" class="message error"></div>
+                </form>
+            </div>
+
+            <!-- Вкладка: Юридическое лицо (B2B) -->
+            <div id="paneB2B" class="auth-tab-pane">
+                <h1 class="auth-title">Кабинет для юридических лиц</h1>
+                <p class="auth-subtitle">Введите ИНН организации или ИП для входа</p>
+
+                <form id="b2bForm" onsubmit="handleB2bSubmit(event)">
+                    <div class="form-group">
+                        <label for="b2bInn">ИНН организации или ИП</label>
+                        <input type="text" 
+                               id="b2bInn" 
+                               class="auth-input-field" 
+                               placeholder="10 или 12 цифр ИНН" 
+                               maxlength="12" 
+                               inputmode="numeric" 
+                               required 
+                               oninput="handleB2bInnInput()">
+                        <span class="field-hint">10 цифр для юридических лиц или 12 для ИП</span>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="btnCheckB2b">Продолжить</button>
+                    <div id="b2bMsg" class="message error"></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= ЭТАП 2: ВЫБОР КАНАЛА (SMS ИЛИ EMAIL ДЛЯ B2C И B2B) ================= -->
+        <div id="stepChannel" style="display: none;">
+            <h2 class="auth-title" id="clientGreeting">Здравствуйте!</h2>
+            <p class="auth-subtitle" id="channelSubtitle">Куда отправить проверочный код?</p>
+
+            <div class="channel-list">
+                <!-- Канал SMS -->
+                <div class="channel-card active" id="channelSmsCard" onclick="selectChannel('sms')">
+                    <div class="channel-card-icon">📱</div>
+                    <div>
+                        <div class="channel-card-title" id="channelSmsTitle">SMS-сообщение</div>
+                        <div class="channel-card-sub" id="channelPhoneLabel">+7 (...) ...-..--</div>
+                    </div>
+                </div>
+
+                <!-- Канал Email -->
+                <div class="channel-card" id="channelEmailCard" onclick="selectChannel('email')">
+                    <div class="channel-card-icon">✉️</div>
+                    <div>
+                        <div class="channel-card-title" id="channelEmailTitle">Электронная почта</div>
+                        <div class="channel-card-sub" id="channelEmailLabel">Загрузка...</div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="submit-btn" id="btnSendCode" onclick="sendSelectedCode()">Отправить проверочный код</button>
+            <button type="button" class="secondary-btn" onclick="goToStep('phone')">← Назад</button>
+            <div id="channelMsg" class="message error"></div>
+        </div>
+
+        <!-- ================= ЭТАП 3: ВВОД 4-ЗНАЧНОГО КОДА ================= -->
+        <div id="stepOtp" style="display: none;">
+            <h2 class="auth-title">Введите проверочный код</h2>
+            <p class="auth-subtitle" id="otpNotice">Код отправлен</p>
+
+            <form id="otpForm" onsubmit="event.preventDefault();">
+                <div style="display: flex; justify-content: center; gap: 10px; margin: 15px 0 18px 0;">
+                    <input type="text" class="otp-box" maxlength="1" inputmode="numeric" autocomplete="one-time-code" id="otp_1">
+                    <input type="text" class="otp-box" maxlength="1" inputmode="numeric" id="otp_2">
+                    <input type="text" class="otp-box" maxlength="1" inputmode="numeric" id="otp_3">
+                    <input type="text" class="otp-box" maxlength="1" inputmode="numeric" id="otp_4">
+                </div>
+
+                <div style="text-align: center; margin-top: 10px; font-size: 13px; color: #666666;">
+                    <span id="resendNotice">Запросить повторный код через <b id="resendSec">30</b> сек</span>
+                    <button type="button" id="btnResend" style="display: none; background: none; border: none; color: #e30613; font-weight: bold; cursor: pointer; text-decoration: underline;" onclick="resendOtp()">Отправить повторно</button>
+                </div>
+
+                <div style="text-align: center; margin-top: 14px;">
+                    <a href="#" id="linkOtpBack" onclick="goToStep('channel'); return false;" style="font-size: 12px; color: #777777; text-decoration: underline;">← Выбрать другой способ получения</a>
+                </div>
+
+                <div id="otpMsg" class="message error"></div>
+            </form>
+        </div>
+
+        <!-- ================= ЭТАП 4: УСПЕШНЫЙ ВХОД ================= -->
+        <div id="stepRedirect" style="display: none; text-align: center; padding: 25px 0;">
+            <h2 style="margin: 0 0 8px 0; color: #28a745; font-size: 20px;">✔ Вход выполнен!</h2>
+            <p id="redirectText" style="color: #666666; font-size: 14px;">Загружаем личный кабинет...</p>
+        </div>
+
+    </div>
+</div>
+
+<!-- Всплывающее окно тестового режима отправки кода -->
+<div id="testCodeModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>🧪 Тестовый режим (SMS / SMTP)</h3>
+            <span class="modal-close" onclick="closeTestModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p class="modal-text">Код подтверждения успешно сформирован:</p>
+            <div id="testCodeDisplay" class="test-code-number">----</div>
+            <p class="modal-hint">Используйте этот код для входа на следующем шаге.</p>
+        </div>
+        <button type="button" class="submit-btn" onclick="closeTestModal()">Ввести код</button>
+    </div>
+</div>
+
+</body>
+</html>

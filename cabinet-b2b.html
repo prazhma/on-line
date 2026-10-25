@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет юр. лица — ПИН-АВТО</title>
+    
+    <link rel="icon" type="image/x-icon" href="favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
+    
+    <!-- Стили B2C -->
+    <link rel="stylesheet" href="cabinet-b2b.css">
+
+    <!-- Клиентский скрипт B2B -->
+    <script src="js/cabinet-b2b.js" defer></script>
+</head>
+<body>
+
+<div class="cabinet-layout-grid">
+    <!-- Боковое меню -->
+    <aside class="cabinet-sidebar">
+        <div class="sidebar-user-block">
+            <div class="user-avatar-circle" id="userAvatarInitials">ПА</div>
+            <div class="user-info-meta">
+                <div class="user-fullname" id="sidebarUserName">Загрузка...</div>
+                <a href="javascript:void(0)" onclick="switchTab('settings')" class="user-edit-link">Изменить данные</a>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="javascript:void(0)" class="nav-item active" data-tab="main" onclick="switchTab('main')">Главная</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="orders" onclick="switchTab('orders')">Заказ-наряды</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="services" onclick="switchTab('services')">Записаться на сервис</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="garage" onclick="switchTab('garage')">Мой автопарк <span class="badge-count" id="garageBadge">0</span></a>
+            
+            <a href="javascript:void(0)" class="nav-item" data-tab="storage" onclick="switchTab('storage')">Договоры хранения</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="recommendations" onclick="switchTab('recommendations')">Рекомендации мастера</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="loyalty" onclick="switchTab('loyalty')">Программа лояльности</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="settings" onclick="switchTab('settings')">Реквизиты организации</a>
+            <a href="javascript:void(0)" class="nav-item nav-logout" onclick="logoutB2B()">Выйти</a>
+        </nav>
+    </aside>
+
+    <!-- Основной контент -->
+    <main class="cabinet-content-area">
+        
+        <!-- 1. Вкладка: Главная -->
+        <div class="tab-pane active" id="tab-main">
+            <h1 class="cabinet-page-title" id="welcomeTitle">Здравствуйте!</h1>
+            <p class="cabinet-page-subtitle" id="currentDateSubtitle"></p>
+
+            <div class="quick-banners-grid">
+                <div class="quick-banner" onclick="startNewBooking()">
+                    <span>Записаться на сервис</span>
+                    <div class="qb-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e5799" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="quick-banner" onclick="switchTab('garage')">
+                    <span>Мой автопарк</span>
+                    <div class="qb-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e5799" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="3" width="15" height="13"></rect>
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
+                            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                        </svg>
+                    </div>
+                </div>
+                <div class="quick-banner" onclick="switchTab('storage')">
+                    <span>Договоры хранения</span>
+                    <div class="qb-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e5799" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <line x1="12" y1="3" x2="12" y2="9"></line>
+                            <line x1="12" y1="15" x2="12" y2="21"></line>
+                            <line x1="3" y1="12" x2="9" y2="12"></line>
+                            <line x1="15" y1="12" x2="21" y2="12"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="quick-banner" onclick="switchTab('orders')">
+                    <span>Заказ-наряды</span>
+                    <div class="qb-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e5799" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- ПРЕДСТАВИТЕЛИ ОРГАНИЗАЦИИ -->
+                <div class="dashboard-card">
+                    <div class="card-header-flex">
+                        <h3>Представители организации</h3>
+                        <a href="javascript:void(0)" onclick="switchTab('settings')" class="card-link-right">Все данные ›</a>
+                    </div>
+                    <div id="mainRepresentativesContainer">
+                        <div class="empty-info-box">Загрузка представителей из CRM...</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card" onclick="switchTab('loyalty')" style="cursor: pointer;">
+                    <h3>Бонусный баланс</h3>
+                    <div style="font-size: 34px; font-weight: 800; color: var(--color-red-bottom); margin-bottom: 6px;" id="mainLoyaltyPoints">0 баллов</div>
+                    <p style="font-size: 13.5px; color: var(--color-text-muted); margin: 0 0 16px 0;">1 балл = 1 рубль скидки во всей сети техцентров</p>
+                    <button type="button" class="week-btn">Посмотреть условия</button>
+                </div>
+
+                <div class="dashboard-card span-2">
+                    <div class="card-header-flex">
+                        <h3>Автопарк компании</h3>
+                        <a href="javascript:void(0)" onclick="switchTab('garage')" class="card-link-right">Все автомобили ›</a>
+                    </div>
+                    <div id="mainGarageContainer">
+                        <div class="empty-info-box">Перейдите во вкладку "Мой автопарк" для просмотра...</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card span-2">
+                    <div class="card-header-flex">
+                        <h3>Мои записи на сервис</h3>
+                        <a href="javascript:void(0)" onclick="switchTab('services'); switchServicesSubTab('list');" class="card-link-right">Посмотреть все записи ›</a>
+                    </div>
+                    <div id="mainServicesPreview">
+                        <div class="empty-info-box">Загрузка записей...</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card span-2">
+                    <div class="card-header-flex">
+                        <h3>Мои заказ-наряды</h3>
+                        <a href="javascript:void(0)" onclick="switchTab('orders')" class="card-link-right">Посмотреть все заказ-наряды ›</a>
+                    </div>
+                    <div id="mainOrdersPreview">
+                        <div class="empty-info-box">Загрузка заказов...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Вкладка: Заказы -->
+        <div class="tab-pane" id="tab-orders">
+            <h1 class="cabinet-page-title">История сделок и заказ-нарядов</h1>
+            <div class="filter-pills-row" id="orderStatusPills">
+                <button class="pill-btn active" onclick="filterOrders('all', this)">Все</button>
+            </div>
+            <div id="ordersListContainer">
+                <div class="empty-info-box">Загрузка истории сделок из CRM...</div>
+            </div>
+            <div id="ordersPaginationContainer" style="margin-top: 20px; display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap;"></div>
+        </div>
+
+        <!-- 3. Вкладка: Записаться на сервис -->
+        <div class="tab-pane" id="tab-services">
+            <h1 class="cabinet-page-title">Записаться на сервис</h1>
+            
+            <div class="filter-pills-row" style="margin-bottom: 20px;">
+                <button type="button" class="pill-btn" id="btnSubtabList" onclick="switchServicesSubTab('list')">Мои записи</button>
+                <button type="button" class="pill-btn active" id="btnSubtabNew" onclick="switchServicesSubTab('new')">+ Записаться на сервис</button>
+            </div>
+
+            <div id="subtabServicesList" class="settings-card" style="display: none;">
+                <div class="filter-pills-row">
+                    <button class="pill-btn active" onclick="filterServices('all', this)">Все</button>
+                    <button class="pill-btn" onclick="filterServices('active', this)">Активные</button>
+                    <button class="pill-btn" onclick="filterServices('completed', this)">Выполненные</button>
+                    <button class="pill-btn" onclick="filterServices('cancelled', this)">Отмененные</button>
+                </div>
+                <div id="servicesListContainer">
+                    <div class="empty-info-box">Загрузка записей на сервис из календаря...</div>
+                </div>
+            </div>
+
+            <div id="subtabServicesNew" class="settings-card">
+                <h2>Онлайн-запись на сервис ПИН-АВТО</h2>
+                
+                <form id="cabinetBookingForm" onsubmit="handleCabinetBookingSubmit(event)">
+                    <div class="form-group">
+                        <label for="bookingCarGarageSelect">Автомобиль для записи:</label>
+                        <select id="bookingCarGarageSelect" onchange="handleGarageCarChange()">
+                            <option value="">-- Загрузка автопарка... --</option>
+                        </select>
+                    </div>
+
+                    <div id="manualCarFieldsRow" class="form-row" style="display: none;">
+                        <div class="form-group mb-0">
+                            <label for="carBrand">Марка автомобиля:</label>
+                            <select id="carBrand">
+                                <option value="">-- Выберите марку авто --</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="carPlate">Гос. номер:</label>
+                            <input type="text" id="carPlate" placeholder="А777МР77">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 22px;">
+                        <label for="branchSelect">Выберите филиал обслуживания:</label>
+                        <select id="branchSelect" required>
+                            <option value="">-- Загрузка филиалов --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Дата визита:</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px; max-width: 420px;">
+                            <button type="button" class="week-btn active" id="btnWeekCurrent" onclick="switchWeekTab(0)">Эта неделя</button>
+                            <button type="button" class="week-btn" id="btnWeekNext" onclick="switchWeekTab(1)">Следующая неделя</button>
+                        </div>
+                        <div class="grid-v4" id="grid_v4"></div>
+                        <input type="hidden" id="dateSelect" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="postSelect">Выберите пост / услугу:</label>
+                        <select id="postSelect" required disabled>
+                            <option value="">Сначала выберите филиал и дату</option>
+                        </select>
+                    </div>
+
+                    <div id="workloadBox" class="workload-box" style="display: none;">
+                        <div class="workload-header">
+                            <span id="workloadTitle">Загруженность выбранного поста:</span>
+                            <span id="workloadPercent">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="workloadFill" class="progress-bar-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="servicesWrapper" style="display: none;">
+                        <label>Выберите работы по категориям:</label>
+                        <div id="tabsContainer" class="tabs-container"></div>
+                        <div id="tabContentsContainer"></div>
+                    </div>
+
+                    <div class="summary-box" id="summaryBox" style="display: none;">
+                        <div>Итого времени: <span id="totalTime">0 мин</span></div>
+                        <div>Стоимость (оценка): <span id="totalPrice">0 ₽</span></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Доступное время:</label>
+                        <div id="slotsContainer" class="slots-grid">
+                            <div class="empty-info-box" style="grid-column: 1 / -1;">
+                                📌 Выберите филиал, дату и пост обслуживания
+                            </div>
+                        </div>
+                        <input type="hidden" id="selectedTime" name="time" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="bookingSubmitBtn">Подтвердить запись</button>
+                </form>
+                <div id="cabinetBookingMsg" class="message"></div>
+            </div>
+        </div>
+
+        <!-- 4. Вкладка: Гараж / Автопарк -->
+        <div class="tab-pane" id="tab-garage">
+            <div class="card-header-flex" style="margin-bottom: 20px;">
+                <h1 class="cabinet-page-title" style="margin: 0;">Мой автопарк</h1>
+                <button type="button" class="week-btn" style="max-width: 180px;" onclick="openAddCarModal()">+ Добавить авто</button>
+            </div>
+            
+            <div id="fullGarageContainer">
+                <div class="empty-info-box">Загрузка автомобилей компании...</div>
+            </div>
+        </div>
+
+        <!-- 5. Вкладка: Договоры хранения -->
+        <div class="tab-pane" id="tab-storage">
+            <h1 class="cabinet-page-title">Договоры сезонного хранения шин</h1>
+            <p class="cabinet-page-subtitle">Информация об активных договорах ответственного хранения колес и шин</p>
+            
+            <div id="storageContractContainer">
+                <div class="empty-info-box">Загрузка данных договора хранения...</div>
+            </div>
+        </div>
+
+        <!-- 6. Вкладка: Рекомендации мастера -->
+        <div class="tab-pane" id="tab-recommendations">
+            <h1 class="cabinet-page-title">Рекомендации мастера</h1>
+            <div id="recommendationsContainer">
+                <div class="empty-info-box">Загрузка рекомендаций мастера из CRM...</div>
+            </div>
+        </div>
+
+        <!-- 7. Вкладка: Программа лояльности -->
+        <div class="tab-pane" id="tab-loyalty">
+            <h1 class="cabinet-page-title">Программа лояльности</h1>
+            <div class="dashboard-grid" style="margin-bottom: 20px;">
+                <div class="dashboard-card">
+                    <h3>Ваш баланс баллов</h3>
+                    <div style="font-size: 36px; font-weight: 800; color: var(--color-red-bottom); margin-bottom: 8px;" id="loyaltyPagePoints">0 баллов</div>
+                    <p style="font-size: 13.5px; color: var(--color-text-muted); margin: 0;">1 балл = 1 рубль. Оплачивайте до 50% чека на работы и запчасти.</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Корпоративные правила</h3>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 13.5px; color: #475569; line-height: 1.6;">
+                        <li><b>Единый счет автопарка:</b> баллы начисляются по закрытым заказ-нарядам</li>
+                        <li><b>Сеть техцентров:</b> единые условия во всех 11 филиалах ПИН-АВТО</li>
+                        <li><b>Безналичный расчет:</b> закрывающие документы формируются с учетом скидок</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>История операций с кэшбэком</h3>
+            <div id="transactionsContainer">
+                <div class="empty-info-box">Загрузка истории транзакций...</div>
+            </div>
+        </div>
+
+        <!-- 8. Вкладка: Реквизиты организации -->
+        <div class="tab-pane" id="tab-settings">
+            <h1 class="cabinet-page-title">Реквизиты организации</h1>
+
+            <div class="settings-card">
+                <h3>Карточка юридического лица в STOCRM</h3>
+                <form id="jurProfileForm" onsubmit="handleJurProfileSave(event)">
+                    <div class="settings-grid-form">
+                        <div class="form-group">
+                            <label for="jurCompanyName">Полное наименование организации</label>
+                            <input type="text" id="jurCompanyName" placeholder="ООО Компания" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="jurShortName">Краткое наименование</label>
+                            <input type="text" id="jurShortName" placeholder="Компания">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurInn">ИНН</label>
+                            <input type="text" id="jurInn" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="jurKpp">КПП</label>
+                            <input type="text" id="jurKpp" placeholder="КПП">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurOgrn">ОГРН</label>
+                            <input type="text" id="jurOgrn" placeholder="ОГРН">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurDirector">Руководитель / Генеральный директор</label>
+                            <input type="text" id="jurDirector" placeholder="ФИО руководителя">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurContactPerson">Ответственный представитель</label>
+                            <input type="text" id="jurContactPerson" placeholder="ФИО представителя">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurCompanyPhone">Телефон для связи</label>
+                            <input type="text" id="jurCompanyPhone" placeholder="+7 (...) ...-..--">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurCompanyEmail">Корпоративный E-Mail</label>
+                            <input type="text" id="jurCompanyEmail" placeholder="company@mail.ru">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurLegalAddress">Юридический адрес</label>
+                            <input type="text" id="jurLegalAddress" placeholder="Индекс, город, улица, дом">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurBankName">Наименование банка</label>
+                            <input type="text" id="jurBankName" placeholder="Банк">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurBik">БИК</label>
+                            <input type="text" id="jurBik" placeholder="БИК банка">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurRs">Расчетный счет</label>
+                            <input type="text" id="jurRs" placeholder="40702810...">
+                        </div>
+                        <div class="form-group">
+                            <label for="jurKs">Корреспондентский счет</label>
+                            <input type="text" id="jurKs" placeholder="30101810...">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <button type="submit" class="submit-btn" id="btnSaveJur" style="max-width: 280px;">Сохранить реквизиты</button>
+                        <div id="jurSaveMsg" class="message" style="margin: 0; display: none;"></div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="settings-card" style="margin-top: 22px;">
+                <h3>Каналы корпоративных уведомлений</h3>
+                <div class="checkboxes-row">
+                    <label class="checkbox-label"><input type="checkbox" checked> SMS представителю</label>
+                    <label class="checkbox-label"><input type="checkbox" checked> Email бухгалтерии</label>
+                    <label class="checkbox-label"><input type="checkbox"> WhatsApp</label>
+                    <label class="checkbox-label"><input type="checkbox" checked> Telegram</label>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Модальное окно добавления ТС -->
+<div class="modal-overlay" id="addCarModal" onclick="if(event.target===this) closeAddCarModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Добавление автомобиля в автопарк</h3>
+            <span class="modal-close" onclick="closeAddCarModal()">&times;</span>
+        </div>
+        <form id="addCarForm" onsubmit="handleAddCarSubmit(event)">
+            <div class="form-group">
+                <label for="modalCarPlate">Государственный номер *</label>
+                <input type="text" id="modalCarPlate" placeholder="А123АА123" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group mb-0">
+                    <label for="modalCarBrand">Марка *</label>
+                    <input type="text" id="modalCarBrand" placeholder="Например: Ford" required>
+                </div>
+                <div class="form-group mb-0">
+                    <label for="modalCarModel">Модель *</label>
+                    <input type="text" id="modalCarModel" placeholder="Например: Transit" required>
+                </div>
+            </div>
+            <div class="form-row" style="margin-top: 14px;">
+                <div class="form-group mb-0">
+                    <label for="modalCarVin">VIN / Кузов</label>
+                    <input type="text" id="modalCarVin" placeholder="17 знаков">
+                </div>
+                <div class="form-group mb-0">
+                    <label for="modalCarYear">Год выпуска</label>
+                    <input type="text" id="modalCarYear" placeholder="2022">
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <button type="submit" class="submit-btn" id="btnAddCarSubmit">Зарегистрировать ТС</button>
+            </div>
+            <div id="addCarMsg" class="message"></div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

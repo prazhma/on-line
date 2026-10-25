@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет — ПИН-АВТО</title>
+    
+    <link rel="icon" type="image/x-icon" href="favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="css.css">
+    <link rel="stylesheet" href="storage.css">
+    <link rel="stylesheet" href="booking-card.css">
+
+    <!-- Модульная архитектура клиентского кабинета ПИН-АВТО -->
+    <script src="js/cabinet-core.js" defer></script>
+    <script src="js/cabinet-garage.js" defer></script>
+    <script src="js/cabinet-orders.js" defer></script>
+    <script src="js/cabinet-booking.js" defer></script>
+    <script src="js/cabinet-appointments.js" defer></script>
+    <script src="js/storage.js" defer></script>
+</head>
+<body>
+
+<div class="cabinet-layout-grid">
+    <!-- Боковое меню -->
+    <aside class="cabinet-sidebar">
+        <div class="sidebar-user-block">
+            <div class="user-avatar-circle" id="userAvatarInitials">ПА</div>
+            <div class="user-info-meta">
+                <div class="user-fullname" id="sidebarUserName">Загрузка...</div>
+                <a href="javascript:void(0)" onclick="switchTab('settings')" class="user-edit-link">Изменить данные</a>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="javascript:void(0)" class="nav-item active" data-tab="main" onclick="switchTab('main')">Главная</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="orders" onclick="switchTab('orders')">Заказ-наряды</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="services" onclick="switchTab('services')">Записаться на сервис</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="garage" onclick="switchTab('garage')">Мой гараж <span class="badge-count" id="garageBadge">0</span></a>
+            
+            <a href="javascript:void(0)" class="nav-item" data-tab="tires" onclick="switchTab('tires')">Подобрать шины</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="wheels" onclick="switchTab('wheels')">Подобрать диски</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="battery" onclick="switchTab('battery')">Подобрать АКБ</a>
+
+            <a href="javascript:void(0)" class="nav-item" data-tab="storage" onclick="switchTab('storage')">Договоры хранения</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="recommendations" onclick="switchTab('recommendations')">Рекомендации мастера</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="loyalty" onclick="switchTab('loyalty')">Программа лояльности</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="promo" onclick="switchTab('promo')">Промокоды</a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="settings" onclick="switchTab('settings')">Настройки профиля</a>
+            <a href="javascript:void(0)" class="nav-item nav-logout" onclick="logout()">Выйти</a>
+        </nav>
+    </aside>
+
+    <!-- Основной контент -->
+    <main class="cabinet-content-area">
+        
+        <!-- Вкладка: Главная -->
+        <div class="tab-pane active" id="tab-main">
+            <h1 class="cabinet-page-title" id="welcomeTitle">Здравствуйте!</h1>
+            <p class="cabinet-page-subtitle" id="currentDateSubtitle"></p>
+
+            <div class="quick-banners-grid">
+                <div class="quick-banner" onclick="startNewBooking()">
+                    <span>Записаться на сервис</span>
+                    <div class="qb-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e5799" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="quick-banner" onclick="switchTab('tires')">
+                    <span>Подобрать шины</span>
+                    <div class="qb-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e5799" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <line x1="12" y1="3" x2="12" y2="9"></line>
+                            <line x1="12" y1="15" x2="12" y2="21"></line>
+                            <line x1="3" y1="12" x2="9" y2="12"></line>
+                            <line x1="15" y1="12" x2="21" y2="12"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="quick-banner" onclick="switchTab('wheels')">
+                    <span>Подобрать диски</span>
+                    <div class="qb-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e5799" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <path d="M12 3v5"></path>
+                            <path d="M12 16v5"></path>
+                            <path d="M3 12h5"></path>
+                            <path d="M16 12h5"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="quick-banner" onclick="switchTab('battery')">
+                    <span>Подобрать АКБ</span>
+                    <div class="qb-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e5799" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="18" height="13" rx="2" ry="2"></rect>
+                            <line x1="6" y1="3" x2="6" y2="7"></line>
+                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                            <line x1="10" y1="11" x2="14" y2="11"></line>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Промокоды</h3>
+                    <div class="empty-info-box">
+                        <span>ℹ️</span> У вас нет активных промокодов
+                    </div>
+                </div>
+
+                <div class="dashboard-card" onclick="switchTab('loyalty')" style="cursor: pointer;">
+                    <h3>Бонусный баланс</h3>
+                    <div style="font-size: 34px; font-weight: 800; color: var(--color-red); margin-bottom: 6px;" id="mainLoyaltyPoints">0 баллов</div>
+                    <p style="font-size: 13.5px; color: var(--color-text-muted); margin: 0 0 16px 0;">1 балл = 1 рубль скидки во всей сети автосервисов</p>
+                    <button type="button" class="week-btn">Посмотреть историю баллов</button>
+                </div>
+
+                <div class="dashboard-card span-2">
+                    <div class="card-header-flex">
+                        <h3>Мой гараж</h3>
+                        <a href="javascript:void(0)" onclick="switchTab('garage')" class="card-link-right">Все автомобили ›</a>
+                    </div>
+                    <div id="mainGarageContainer">
+                        <div class="empty-info-box">Перейдите во вкладку "Мой гараж" для просмотра автомобилей...</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card span-2">
+                    <div class="card-header-flex">
+                        <h3>Мои записи на сервис</h3>
+                        <a href="javascript:void(0)" onclick="switchTab('services'); switchServicesSubTab('list');" class="card-link-right">Посмотреть все записи ›</a>
+                    </div>
+                    <div id="mainServicesPreview">
+                        <div class="empty-info-box">Загрузка записей...</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card span-2">
+                    <div class="card-header-flex">
+                        <h3>Мои заказ-наряды</h3>
+                        <a href="javascript:void(0)" onclick="switchTab('orders')" class="card-link-right">Посмотреть все заказ-наряды ›</a>
+                    </div>
+                    <div id="mainOrdersPreview">
+                        <div class="empty-info-box">Загрузка заказов...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Заказы -->
+        <div class="tab-pane" id="tab-orders">
+            <h1 class="cabinet-page-title">История сделок и заказ-нарядов</h1>
+            <div class="filter-pills-row" id="orderStatusPills">
+                <button class="pill-btn active" onclick="filterOrders('all', this)">Все</button>
+            </div>
+            <div id="ordersListContainer">
+                <div class="empty-info-box">Загрузка истории сделок из CRM...</div>
+            </div>
+            <div id="ordersPaginationContainer" style="margin-top: 20px; display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap;"></div>
+        </div>
+
+        <!-- Вкладка: Записаться на сервис -->
+        <div class="tab-pane" id="tab-services">
+            <h1 class="cabinet-page-title">Записаться на сервис</h1>
+            
+            <div class="filter-pills-row mb-20">
+                <button type="button" class="pill-btn" id="btnSubtabList" onclick="switchServicesSubTab('list')">Мои записи</button>
+                <button type="button" class="pill-btn active" id="btnSubtabNew" onclick="switchServicesSubTab('new')">+ Записаться на сервис</button>
+            </div>
+
+            <div id="subtabServicesList" class="settings-card" style="display: none;">
+                <div class="filter-pills-row">
+                    <button class="pill-btn active" onclick="filterServices('all', this)">Все</button>
+                    <button class="pill-btn" onclick="filterServices('active', this)">Активные</button>
+                    <button class="pill-btn" onclick="filterServices('completed', this)">Выполненные</button>
+                    <button class="pill-btn" onclick="filterServices('cancelled', this)">Отмененные</button>
+                </div>
+                <div id="servicesListContainer">
+                    <div class="empty-info-box">Загрузка записей на сервис из календаря...</div>
+                </div>
+            </div>
+
+            <div id="subtabServicesNew" class="settings-card">
+                <h2>Онлайн-запись на сервис ПИН-АВТО</h2>
+                
+                <form id="cabinetBookingForm" onsubmit="handleCabinetBookingSubmit(event)">
+                    <div class="form-group">
+                        <label for="bookingCarGarageSelect">Автомобиль для записи:</label>
+                        <select id="bookingCarGarageSelect" onchange="handleGarageCarChange()">
+                            <option value="">-- Загрузка гаража... --</option>
+                        </select>
+                    </div>
+
+                    <div id="manualCarFieldsRow" class="form-row" style="display: none;">
+                        <div class="form-group mb-0">
+                            <label for="carBrand">Марка автомобиля:</label>
+                            <select id="carBrand">
+                                <option value="">-- Выберите марку авто --</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="carPlate">Гос. номер:</label>
+                            <input type="text" id="carPlate" placeholder="А777МР77">
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-22">
+                        <label for="branchSelect">Выберите филиал обслуживания:</label>
+                        <select id="branchSelect" required>
+                            <option value="">-- Загрузка филиалов --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Дата визита:</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px; max-width: 420px;">
+                            <button type="button" class="week-btn active" id="btnWeekCurrent" onclick="switchWeekTab(0)">Эта неделя</button>
+                            <button type="button" class="week-btn" id="btnWeekNext" onclick="switchWeekTab(1)">Следующая неделя</button>
+                        </div>
+                        <div class="grid-v4" id="grid_v4"></div>
+                        <input type="hidden" id="dateSelect" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="postSelect">Выберите пост / услугу:</label>
+                        <select id="postSelect" required disabled>
+                            <option value="">Сначала выберите филиал и дату</option>
+                        </select>
+                    </div>
+
+                    <div id="workloadBox" class="workload-box" style="display: none;">
+                        <div class="workload-header">
+                            <span id="workloadTitle">Загруженность выбранного поста:</span>
+                            <span id="workloadPercent">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="workloadFill" class="progress-bar-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="servicesWrapper" style="display: none;">
+                        <label>Выберите работы по категориям:</label>
+                        <div id="tabsContainer" class="tabs-container"></div>
+                        <div id="tabContentsContainer"></div>
+                    </div>
+
+                    <div class="summary-box" id="summaryBox" style="display: none;">
+                        <div>Итого времени: <span id="totalTime">0 мин</span></div>
+                        <div>Стоимость (оценка): <span id="totalPrice">0 ₽</span></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Доступное время:</label>
+                        <div id="slotsContainer" class="slots-grid">
+                            <div class="empty-info-box" style="grid-column: 1 / -1;">
+                                📌 Выберите филиал, дату и пост обслуживания
+                            </div>
+                        </div>
+                        <input type="hidden" id="selectedTime" name="time" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="bookingSubmitBtn">Подтвердить запись</button>
+                </form>
+                <div id="cabinetBookingMsg" class="message"></div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Гараж -->
+        <div class="tab-pane" id="tab-garage">
+            <div class="card-header-flex mb-20">
+                <h1 class="cabinet-page-title" style="margin: 0;">Гараж</h1>
+                <button type="button" class="week-btn" style="max-width: 180px;" onclick="alert('Для добавления автомобиля обратитесь к мастеру-приемщику в филиале')">+ Добавить авто</button>
+            </div>
+            
+            <div id="fullGarageContainer">
+                <div class="empty-info-box">Загрузка автомобилей из гаража...</div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Подобрать шины -->
+        <div class="tab-pane" id="tab-tires">
+            <h1 class="cabinet-page-title">Подбор шин по автомобилю</h1>
+            <p class="cabinet-page-subtitle">Выберите автомобиль для просмотра рекомендованных размеров</p>
+
+            <div id="tiresCarSelector"></div>
+
+            <div class="catalog-specs-box" id="tiresSpecsBox" style="display: none;"></div>
+
+            <div class="filter-pills-row mb-20" id="tiresFilters" style="display: none;">
+                <button type="button" class="pill-btn active">☀️ Летние</button>
+                <button type="button" class="pill-btn">❄️ Зимние нешипованные</button>
+                <button type="button" class="pill-btn">🧊 Зимние шипованные</button>
+            </div>
+
+            <div class="product-grid" id="tiresProductGrid">
+                <div class="empty-info-box" style="grid-column: 1 / -1;">Выберите автомобиль для подбора шин.</div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Подобрать диски -->
+        <div class="tab-pane" id="tab-wheels">
+            <h1 class="cabinet-page-title">Подбор дисков по автомобилю</h1>
+            <p class="cabinet-page-subtitle">Выберите автомобиль для просмотра параметров вылета и разболтовки</p>
+
+            <div id="wheelsCarSelector"></div>
+
+            <div class="catalog-specs-box" id="wheelsSpecsBox" style="display: none;"></div>
+
+            <div class="filter-pills-row mb-20" id="wheelsFilters" style="display: none;">
+                <button type="button" class="pill-btn active">Все</button>
+                <button type="button" class="pill-btn">Литые</button>
+                <button type="button" class="pill-btn">Штампованные</button>
+            </div>
+
+            <div class="product-grid" id="wheelsProductGrid">
+                <div class="empty-info-box" style="grid-column: 1 / -1;">Выберите автомобиль для подбора дисков.</div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Подобрать АКБ -->
+        <div class="tab-pane" id="tab-battery">
+            <h1 class="cabinet-page-title">Подбор аккумулятора</h1>
+            <p class="cabinet-page-subtitle">Подбор по VIN-коду через базу Rossko</p>
+
+            <div id="batteryCarSelector"></div>
+
+            <div class="catalog-specs-box" id="batterySpecsBox" style="display: none;"></div>
+
+            <div class="filter-pills-row mb-20" id="batteryFilters" style="display: none;">
+                <button type="button" class="pill-btn active">Рекомендованные Rossko</button>
+            </div>
+
+            <div class="product-grid" id="batteryProductGrid">
+                <div class="empty-info-box" style="grid-column: 1 / -1;">Выберите автомобиль для подбора АКБ.</div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Договоры хранения -->
+        <div class="tab-pane" id="tab-storage">
+            <h1 class="cabinet-page-title">Договоры сезонного хранения шин</h1>
+            <p class="cabinet-page-subtitle">Информация об активных договорах ответственного хранения колес и шин</p>
+            
+            <div id="storageContractContainer">
+                <div class="empty-info-box">Загрузка данных договора хранения...</div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Рекомендации мастера -->
+        <div class="tab-pane" id="tab-recommendations">
+            <h1 class="cabinet-page-title">Рекомендации мастера</h1>
+            <div id="recommendationsContainer">
+                <div class="empty-info-box">Загрузка рекомендаций мастера из CRM...</div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Программа лояльности -->
+        <div class="tab-pane" id="tab-loyalty">
+            <h1 class="cabinet-page-title">Программа лояльности</h1>
+            <div class="dashboard-grid mb-20">
+                <div class="dashboard-card">
+                    <h3>Ваш баланс баллов</h3>
+                    <div style="font-size: 36px; font-weight: 800; color: var(--color-red); margin-bottom: 8px;" id="loyaltyPagePoints">0 баллов</div>
+                    <p style="font-size: 13.5px; color: var(--color-text-muted); margin: 0;">1 балл = 1 рубль. Оплачивайте до 50% чека на работы и запчасти.</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Правила начисления</h3>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 13.5px; color: #475569; line-height: 1.6;">
+                        <li><b>Кэшбэк за визит:</b> начисляется сразу после закрытия заказ-наряда</li>
+                        <li><b>Единый счет:</b> действует во всех 11 филиалах сети ПИН-АВТО</li>
+                        <li><b>Без ограничений:</b> выбирайте сами, когда списывать накопленные баллы</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>История операций с кэшбэком</h3>
+            <div id="transactionsContainer">
+                <div class="empty-info-box">Загрузка истории транзакций...</div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Промокоды -->
+        <div class="tab-pane" id="tab-promo">
+            <h1 class="cabinet-page-title">Промокоды</h1>
+            <div class="dashboard-card">
+                <div class="empty-info-box">
+                    <span>ℹ️</span> У вас нет активных промокодов
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Настройки профиля (Только персональные данные физлица) -->
+        <div class="tab-pane" id="tab-settings">
+            <h1 class="cabinet-page-title">Настройки профиля</h1>
+
+            <div class="settings-card">
+                <h3>Личные данные клиента</h3>
+                <form id="physProfileForm" onsubmit="handlePhysProfileSave(event)">
+                    <div class="settings-grid-form">
+                        <div class="form-group">
+                            <label for="settingsLastName">Фамилия</label>
+                            <input type="text" id="settingsLastName" placeholder="Фамилия">
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsFirstName">Имя *</label>
+                            <input type="text" id="settingsFirstName" placeholder="Имя" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsMiddleName">Отчество</label>
+                            <input type="text" id="settingsMiddleName" placeholder="Отчество">
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsGender">Пол</label>
+                            <select id="settingsGender">
+                                <option value="M">Мужской</option>
+                                <option value="F">Женский</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsPhoneInput">Телефон (логин, защищен)</label>
+                            <input type="text" id="settingsPhoneInput" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsEmailInput">Электронная почта (E-Mail)</label>
+                            <input type="text" id="settingsEmailInput" placeholder="1@1.ru">
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsBirthdayInput">Дата рождения</label>
+                            <input type="date" id="settingsBirthdayInput">
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsCityInput">Город</label>
+                            <input type="text" id="settingsCityInput" placeholder="Введите название города">
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsAddressInput">Почтовый адрес</label>
+                            <input type="text" id="settingsAddressInput" placeholder="Улица, дом, квартира">
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsSiteInput">Веб-сайт / Блог</label>
+                            <input type="text" id="settingsSiteInput" placeholder="https://pin-avto.ru">
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsDiscountCardInput">Дисконтная карта №</label>
+                            <input type="text" id="settingsDiscountCardInput" readonly placeholder="Не привязана">
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsSegmentInput">Категория / Сегмент</label>
+                            <input type="text" id="settingsSegmentInput" readonly placeholder="Обратитесь к менеджеру">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <button type="submit" class="submit-btn" id="btnSavePhys" style="max-width: 280px;">Сохранить изменения</button>
+                        <div id="physSaveMsg" class="message" style="margin: 0; display: none;"></div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Блок настроек уведомлений -->
+            <div class="settings-card" style="margin-top: 22px;">
+                <h3>Каналы уведомлений</h3>
+                <div class="checkboxes-row">
+                    <label class="checkbox-label"><input type="checkbox" checked> SMS</label>
+                    <label class="checkbox-label"><input type="checkbox" checked> Email</label>
+                    <label class="checkbox-label"><input type="checkbox"> WhatsApp</label>
+                    <label class="checkbox-label"><input type="checkbox" checked> Telegram</label>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

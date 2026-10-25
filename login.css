@@ -1,0 +1,505 @@
+/* ============================================================
+   ПИН-АВТО — ИЗОЛИРОВАННЫЕ СТИЛИ ВХОДА И СТАРТА
+   ============================================================ */
+
+:root {
+    --font-ui: "Trebuchet MS", "Lucida Grande", "Segoe UI", Arial, sans-serif;
+    --font-mono: "Consolas", "Courier New", monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-ui);
+    background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('img/login_bg.png') no-repeat center center fixed;
+    background-size: cover;
+    color: #222222;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 15px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Обертка центрирования */
+.login-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Карточка */
+.login-card-box {
+    width: 100%;
+    max-width: 440px;
+    background: #ffffff;
+    border: 1px solid #999999;
+    border-radius: 16px;
+    padding: 30px 32px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    text-align: center;
+}
+
+/* Верхний и нижний пунктиры вокруг шапки */
+.dashed-divider {
+    width: 100%;
+    height: 1px;
+    border-top: 1.5px dashed #bbbbbb;
+    margin: 0 0 20px 0;
+}
+
+.dashed-divider.bottom {
+    margin: 20px 0 24px 0;
+}
+
+/* Шапка с логотипом */
+.brand-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    padding: 4px 0;
+}
+
+.brand-logo-img {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    object-fit: contain;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    background: #ffffff;
+    display: block;
+}
+
+.brand-title-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: #111111;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 0 #ffffff;
+}
+
+/* Табы выбора роли (B2C / B2B) */
+.auth-tabs-row {
+    display: flex;
+    gap: 6px;
+    background: #eef2f6;
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 22px;
+    border: 1px solid #d0d7de;
+}
+
+.auth-tab-btn {
+    flex: 1;
+    padding: 10px 8px;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: var(--font-ui);
+    color: #555555;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.auth-tab-btn:hover {
+    color: #111111;
+}
+
+.auth-tab-btn.active {
+    background: #ffffff;
+    color: #1e5799;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+    border: 1px solid #c2cbd6;
+}
+
+.auth-tab-pane {
+    display: none;
+}
+
+.auth-tab-pane.active {
+    display: block;
+}
+
+/* Заголовки экранов */
+.auth-title {
+    font-size: 19px;
+    font-weight: bold;
+    color: #222222;
+    margin-bottom: 6px;
+    text-shadow: 1px 1px 0 #ffffff;
+}
+
+.auth-subtitle {
+    font-size: 13px;
+    color: #666666;
+    margin-bottom: 22px;
+}
+
+/* Поля формы */
+.form-group {
+    margin-bottom: 18px;
+    text-align: left;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    color: #444444;
+    margin-bottom: 7px;
+    text-shadow: 1px 1px 0 #ffffff;
+}
+
+.auth-input-field {
+    width: 100%;
+    height: 44px;
+    padding: 8px 12px;
+    font-size: 15px;
+    font-family: var(--font-ui);
+    border: 1px solid #aaaaaa;
+    border-radius: 6px;
+    background-color: #fafafa;
+    color: #222222;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-input-field:focus {
+    border-color: #5b9dd9;
+    background-color: #ffffff;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 0 8px rgba(91, 157, 217, 0.6);
+}
+
+.auth-input-field[readonly] {
+    background-color: #f1f5f9;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.field-hint {
+    font-size: 11px;
+    color: #777777;
+    margin-top: 5px;
+    display: block;
+    text-align: center;
+}
+
+/* Карточка найденной B2B организации */
+.b2b-company-card {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.b2b-company-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.b2b-company-name {
+    color: #1e5799;
+}
+
+/* Подсветка телефона представителя с маской */
+.rep-phone-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #2563eb;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    font-size: 12.5px;
+    color: #1e3a8a;
+    line-height: 1.45;
+}
+
+.rep-phone-highlight {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1d4ed8;
+    margin-top: 5px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
+}
+
+/* Зеленая кнопка Web 2.0 */
+.submit-btn {
+    width: 100%;
+    height: 46px;
+    background: linear-gradient(to bottom, #a9db80 0%, #96c56f 100%);
+    color: #ffffff;
+    border: 1px solid #7cb054;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 3px 6px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(to bottom, #b4e38c 0%, #a2d17a 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.submit-btn:active {
+    background: #84b35e;
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Вторичная серебряная кнопка Web 2.0 */
+.secondary-btn {
+    width: 100%;
+    height: 44px;
+    margin-top: 10px;
+    background: linear-gradient(to bottom, #ffffff 0%, #e2e2e2 100%);
+    border: 1px solid #aaaaaa;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: var(--font-ui);
+    color: #333333;
+    cursor: pointer;
+    text-shadow: 1px 1px 0 #ffffff;
+    box-shadow: inset 0 1px 0 #ffffff, 0 1px 2px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.secondary-btn:hover {
+    background: linear-gradient(to bottom, #ffffff 0%, #d4d4d4 100%);
+    border-color: #888888;
+}
+
+/* Карточки выбора каналов (SMS / Email) */
+.channel-list {
+    margin-bottom: 18px;
+}
+
+.channel-card {
+    border: 1.5px solid #dcdcdc;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.channel-card:hover:not(.disabled) {
+    border-color: #e30613;
+    background-color: #fff9f9;
+}
+
+.channel-card.active {
+    border-color: #e30613;
+    background-color: #fff5f5;
+    box-shadow: 0 0 0 1px #e30613;
+}
+
+.channel-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f9f9f9;
+}
+
+.channel-card-icon {
+    font-size: 24px;
+}
+
+.channel-card-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #222222;
+}
+
+.channel-card-sub {
+    font-size: 12px;
+    color: #666666;
+    margin-top: 2px;
+}
+
+/* 4 ячейки OTP */
+.otp-box {
+    width: 50px !important;
+    height: 54px !important;
+    font-size: 26px !important;
+    font-weight: bold !important;
+    font-family: var(--font-mono) !important;
+    text-align: center !important;
+    border: 1.5px solid #aaaaaa !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    outline: none !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 0 !important;
+}
+
+.otp-box:focus {
+    border-color: #e30613 !important;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.15) !important;
+}
+
+/* Сообщения об ошибках и успехе */
+.message {
+    margin-top: 15px;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    display: none;
+    text-align: center;
+}
+
+.message.error {
+    background: #f2dede;
+    color: #a94442;
+    border: 1px solid #ebccd1;
+}
+
+.message.success {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+}
+
+.message.is-visible {
+    display: block;
+}
+
+/* Модальное окно тестового режима */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.modal-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-box {
+    background: #ffffff;
+    border: 1px solid #999999;
+    border-radius: 14px;
+    width: 90%;
+    max-width: 380px;
+    padding: 26px 24px 24px 24px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transform: scale(0.92);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.is-open .modal-box {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 8px;
+}
+
+.modal-header h3 {
+    font-size: 15px;
+    font-weight: bold;
+    color: #1e293b;
+    margin: 0;
+}
+
+.modal-close {
+    font-size: 22px;
+    cursor: pointer;
+    color: #64748b;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+.modal-close:hover {
+    color: #e30613;
+}
+
+.test-code-number {
+    font-size: 38px;
+    font-weight: bold;
+    font-family: var(--font-mono);
+    color: #1e5799;
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 14px 0;
+    letter-spacing: 8px;
+    text-shadow: 1px 1px 0 #ffffff;
+}
+
+.modal-text {
+    font-size: 13.5px;
+    color: #475569;
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.modal-hint {
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+}
