@@ -1,0 +1,9 @@
+# Логи
+*.log
+api/cache/*.log
+
+# Бэкапы и конфликты
+*.bak.*
+config/backups/*.bak.*
+*.conflict*
+*копия*
