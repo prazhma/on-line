@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../favicons/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../favicons/apple-touch-icon.png">
     
-    <link rel="stylesheet" href="../css.css">
+    <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="admin.css">
 
     <script src="js/admin.js" defer></script>
@@ -57,33 +57,10 @@
         <div class="admin-cards-grid">
             <div class="admin-card">
                 <div>
-                    <h4>generate_json_config.py</h4>
-                    <p>Обновить структуру филиалов сети, привязки постов, воронок розницы/B2B и расписаний в <code>config/config.json</code>.</p>
-                </div>
-                <button type="button" class="submit-btn" onclick="runScript('generate_json_config')">Обновить config.json</button>
-            </div>
-
-            <div class="admin-card">
-                <div>
                     <h4>sync_schedules.php</h4>
                     <p>Синхронизировать актуальные графики работы филиалов в <code>schedules.json</code> для модуля расчета онлайн-записи.</p>
                 </div>
                 <button type="button" class="week-btn" onclick="runScript('sync_schedules')">Обновить schedules.json</button>
-            </div>
-        </div>
-
-        <!-- Раздел диагностики -->
-        <div class="cabinet-section-title">
-            <span>🔍 Диагностика и мониторинг</span>
-        </div>
-        
-        <div class="admin-cards-grid">
-            <div class="admin-card">
-                <div>
-                    <h4>get_all_posts.py</h4>
-                    <p>Проверка связи с API и просмотр полного перечня всех зарегистрированных постов сети.</p>
-                </div>
-                <button type="button" class="week-btn" onclick="runScript('get_all_posts')">Проверить посты CRM</button>
             </div>
         </div>
 
