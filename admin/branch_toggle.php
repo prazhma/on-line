@@ -3,6 +3,9 @@
  * ПИН-АВТО — Обработчик управления активностью филиалов (admin/branch_toggle.php)
  */
 
+require __DIR__ . '/admin_auth.php';
+admin_require_auth();
+
 header('Content-Type: application/json; charset=utf-8');
 
 $rootDir = dirname(__DIR__);

@@ -1,6 +1,20 @@
 <?php
-// Ищем конфиг
-$config_paths = ['/volume1/web/config/config.json', '/volume1/web/config.json', __DIR__ . '/config/config.json', __DIR__ . '/config.json'];
+/**
+ * ПИН-АВТО — Синхронизация графиков филиалов из STOCRM (admin/sync_schedules.php)
+ * Запускается через update_worker.php (только после авторизации в админке).
+ */
+
+require __DIR__ . '/admin_auth.php';
+admin_require_auth(); // защита: скрипт доступен только залогиненному админу (или из CLI)
+
+// Ищем конфиг (пути относительно корня проекта, без хардкода /volume1/web)
+$rootDir = dirname(__DIR__);
+$config_paths = [
+    $rootDir . '/config/config.json',
+    $rootDir . '/config.json',
+    __DIR__ . '/config/config.json',
+    __DIR__ . '/config.json',
+];
 $config_file = '';
 foreach ($config_paths as $path) {
     if (file_exists($path) && is_readable($path)) { $config_file = $path; break; }
@@ -23,9 +37,9 @@ if ($response) {
                 $schedules[$branch['CUSTOMER_ID']] = $branch['WORK_TIME'];
             }
         }
-        $file_path = '/volume1/web/schedules.json';
+        $file_path = $rootDir . '/schedules.json';
         file_put_contents($file_path, json_encode($schedules, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-        chmod($file_path, 0666);
+        @chmod($file_path, 0644);
         echo "✅ Расписания успешно обновлены и сохранены в schedules.json!\n";
     } else {
         echo "❌ Ошибка: STOCRM не вернул данные DATA.\n";

@@ -1,3 +1,7 @@
+<?php
+require __DIR__ . '/admin_auth.php';
+admin_require_auth();
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -24,6 +28,8 @@
         <div class="summary-box">
             <span>🛡️ Система автоматического бэкапа файлов перед изменениями активна</span>
             <span>Версия: Production</span>
+            <span style="margin-left:auto;">👤 <?= htmlspecialchars($_SESSION['admin_login'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
+            <a href="logout.php" style="color:#ff9d9d;">Выйти</a>
         </div>
 
         <!-- Раздел управления филиалами -->

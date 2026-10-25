@@ -3,6 +3,9 @@
  * ПИН-АВТО — Обработчик выполнения служебных скриптов (admin/update_worker.php)
  */
 
+require __DIR__ . '/admin_auth.php';
+admin_require_auth();
+
 header('Content-Type: application/json; charset=utf-8');
 
 // Белый список скриптов
