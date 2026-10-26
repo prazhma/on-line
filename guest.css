@@ -557,12 +557,10 @@ body {
 }
 .svc-reset-btn:hover { border-color: #e30613; color: #e30613; background: #fff7f7; }
 
-.svc-client-info {
+.svc-client-cars {
     border: 1px solid #bbf7d0; background: #f0fdf4; border-radius: 10px;
-    padding: 10px 12px; margin-bottom: 12px;
+    padding: 12px 14px; margin-bottom: 12px;
 }
-.svc-client-found { font-size: 13px; color: #15803d; font-weight: 600; margin-bottom: 8px; }
-.svc-client-found .sci-check { margin-right: 6px; }
-.svc-client-found .sci-name { margin-left: 6px; color: #166534; font-weight: 400; }
-/* Поле ручного ввода марки скрыто, когда клиент найден в базе */
-#svcCarManualWrap.is-hidden { display: none; }
+.svc-client-cars > label { font-weight: bold; color: #1e5799; display: block; margin-bottom: 6px; }
+.svc-car-manual { display: grid; grid-template-columns: 1fr 1fr; gap: 0 15px; }
+@media (max-width: 650px) { .svc-car-manual { grid-template-columns: 1fr; } }

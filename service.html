@@ -10,8 +10,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
 
-    <!-- Единый визуальный стиль проекта: общие стили + гостевая форма -->
-    <link rel="stylesheet" href="css.css">
+    <!-- Единый визуальный стиль проекта (как в guest.html) -->
     <link rel="stylesheet" href="guest.css">
     <!-- Логика шинного калькулятора (tyre-prices.json, прайс от 01.10.2026) -->
     <script src="js/tyre-calculator.js" defer></script>
@@ -34,39 +33,43 @@
 
         <form id="serviceCalcForm" onsubmit="return handleServiceCalcSubmit(event)">
 
-            <!-- ===== ШАГ 1. КОНТАКТЫ (после ввода телефона подтягиваем данные клиента и авто из STOCRM) ===== -->
+            <!-- ===== ШАГ 1. КОНТАКТЫ (порядок и поведение — как в guest.html: телефон -> имя) ===== -->
             <div class="svc-step-title">Ваши данные</div>
             <div class="form-row">
                 <div class="form-group">
+                    <label for="servicePhone">Номер мобильного телефона *</label>
+                    <input type="tel" id="servicePhone" class="auth-input-field" placeholder="+7 (999) 000-00-00" autocomplete="tel" inputmode="numeric" required>
+                    <span id="phoneCheckHint" class="field-hint">Укажите номер телефона</span>
+                </div>
+                <div class="form-group">
                     <label for="serviceName">Ваше Имя *</label>
                     <input type="text" id="serviceName" class="auth-input-field" placeholder="Иван" required>
-                </div>
-                <div class="form-group">
-                    <label for="servicePhone">Телефон *</label>
-                    <input type="tel" id="servicePhone" class="auth-input-field" placeholder="+7 (999) 000-00-00" autocomplete="tel" inputmode="numeric" required>
+                    <span class="field-hint">Как к вам обращаться</span>
                 </div>
             </div>
 
-            <!-- Данные найденного клиента (заполняются автоматически после ввода телефона) -->
-            <div id="svcClientInfo" class="svc-client-info" hidden>
-                <div class="svc-client-found"><span class="sci-check">✔</span> Клиент найден в базе ПИН-АВТО<span class="sci-name" id="svcClientName"></span></div>
-                <div class="form-group">
-                    <label for="serviceCarBrand">Автомобиль</label>
-                    <select id="serviceCarBrand" class="auth-input-field">
-                        <option value="">— Другой автомобиль —</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="serviceCarBrandManual2">Свой автомобиль (если нет в списке)</label>
-                    <input type="text" id="serviceCarBrandManual2" class="auth-input-field" placeholder="Например: Kia Rio">
+            <!-- БЛОК ВЫБОРА АВТОМОБИЛЯ ИЗ ГАРАЖА КЛИЕНТА (как clientCarsContainer в guest.html) -->
+            <div id="svcClientCarsContainer" class="form-group svc-client-cars" style="display: none;">
+                <label for="svcClientCarSelect">Автомобиль из базы сервиса *</label>
+                <select id="svcClientCarSelect" class="auth-input-field"></select>
+                <div id="svcClientCarPlateWrap" class="form-group" style="margin-top: 8px; margin-bottom: 0;">
+                    <label for="svcClientCarPlate">Гос. номер или VIN</label>
+                    <input type="text" id="svcClientCarPlate" class="auth-input-field" placeholder="А123ВС 93">
                 </div>
             </div>
 
-            <!-- Ручной ввод марки, если клиент не найден -->
-            <div class="form-group" id="svcCarManualWrap">
-                <label for="serviceCarBrandManual">Марка авто (необязательно)</label>
-                <input type="text" id="serviceCarBrandManual" class="auth-input-field" placeholder="Например: Kia Rio">
+            <!-- Ручной ввод марки/номера, если клиент новый или выбран «другой автомобиль» -->
+            <div id="svcCarManualWrap" class="svc-car-manual" style="display: none;">
+                <div class="form-group">
+                    <label for="serviceCarBrandManual">Марка и модель авто</label>
+                    <input type="text" id="serviceCarBrandManual" class="auth-input-field" placeholder="Например: Kia Rio">
+                </div>
+                <div class="form-group">
+                    <label for="serviceCarPlateManual">Гос. номер или VIN (необязательно)</label>
+                    <input type="text" id="serviceCarPlateManual" class="auth-input-field" placeholder="А123ВС 93">
+                </div>
             </div>
+            <input type="hidden" id="svcSelectedCarProfileId" value="">
 
             <!-- ===== ШАГ 2. ФИЛИАЛ / ПОСТ (реальное расписание STOCRM) ===== -->
             <div class="svc-step-title">Филиал и пост</div>
