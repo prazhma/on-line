@@ -1,0 +1,19 @@
+{
+ "hiddenAttr": true,
+ "blockDisplay": "none",
+ "blockVisibility": "visible",
+ "blockOpacity": "1",
+ "panelDisplay": "block",
+ "cbDisplay": "inline-block",
+ "cbSize": {
+  "x": 0,
+  "y": 0,
+  "width": 0,
+  "height": 0,
+  "top": 0,
+  "right": 0,
+  "bottom": 0,
+  "left": 0
+ },
+ "labelHTML": "<label class=\"service-item\"><input type=\"checkbox\" value=\"Развал-схождение передняя ось\" data-price=\"1900\" data-time=\"60\" data-category=\"Развал-схождение\"><span>Передняя ось</span> <b>от 1900 ₽</b></l"
+}

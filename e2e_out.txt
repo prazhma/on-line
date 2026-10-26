@@ -1,0 +1,59 @@
+PASS | калькулятор виден по умолчанию
+PASS | селект категории присутствует
+PASS | карточки категорий удалены
+PASS | кнопка «Добавить услуги» одна
+PASS | текст кнопки без спец-символов: Добавить сопутствующие услуги (развал, правка дисков, ремонт)
+PASS | полный пакет 205/65 R15 x4 = 2500 (было: 2500 ₽)
+PASS | по выбору: чекбоксы операций сброшены (0)
+PASS | итог после сброса = 0 (0 ₽)
+PASS | только балансировка R15 x4 = 620 (620 ₽)
+PASS | режим «По выбору» активен
+PASS | полный пакет: все 5 включены (5)
+PASS | не шиномонтаж: калькулятор скрыт
+FAIL | не шиномонтаж: блок услуг раскрыт
+PASS | автооткрыт таб Развал
+PASS | список доп. работ показан и синхронен
+node:internal/process/promises:391
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.check: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.svc-tab-panel[data-panel="align"] input[type=checkbox]')[22m
+[2m    - locator resolved to 7 elements. Proceeding with the first one: <input data-time="60" type="checkbox" data-price="1900" data-category="Развал-схождение" value="Развал-схождение передняя ось"/>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    58 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is not visible[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+
+    at /workspace/e2e_service.js:67:14 {
+  log: [
+    `  - waiting for locator('.svc-tab-panel[data-panel="align"] input[type=checkbox]')`,
+    '    - locator resolved to 7 elements. Proceeding with the first one: <input data-time="60" type="checkbox" data-price="1900" data-category="Развал-схождение" value="Развал-схождение передняя ось"/>',
+    '  - attempting click action',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not visible',
+    '    - retrying click action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not visible',
+    '    - retrying click action',
+    '      - waiting 100ms',
+    '    58 × waiting for element to be visible, enabled and stable',
+    '       - element is not visible',
+    '     - retrying click action',
+    '       - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v20.20.2

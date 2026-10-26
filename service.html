@@ -10,7 +10,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
 
-    <!-- Единый визуальный стиль с гостевой формой записи -->
+    <!-- Единый визуальный стиль проекта: общие стили + гостевая форма -->
+    <link rel="stylesheet" href="css.css">
     <link rel="stylesheet" href="guest.css">
     <!-- Логика шинного калькулятора (tyre-prices.json, прайс от 01.10.2026) -->
     <script src="js/tyre-calculator.js" defer></script>
@@ -84,15 +85,26 @@
                 </div>
             </div>
 
-            <!-- ===== ШАГ 3. КАТЕГОРИЯ РАБОТ ===== -->
+            <!-- ===== ШАГ 3. КАТЕГОРИЯ РАБОТ (основная — Шиномонтаж) ===== -->
             <div class="svc-step-title">Выбор работ</div>
-            <div class="form-group">
-                <label>Категория услуг *</label>
-                <div id="svcCategoryCards" class="svc-cat-cards">
-                    <label class="svc-cat-card checked"><input type="radio" name="svcCategory" value="tire" checked><b>Шиномонтаж</b><span>Расчёт по размеру колеса</span></label>
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="align"><b>Развал-схождение</b><span>От 1300 ₽</span></label>
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="rim"><b>Правка дисков</b><span>От 500 ₽</span></label>
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="repair"><b>Ремонт шин и прочее</b><span>Жгут, камера, датчики</span></label>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="svcCategorySelect">Основная работа *</label>
+                    <select id="svcCategorySelect" class="auth-input-field">
+                        <option value="tire" selected>Шиномонтаж — расчёт по размеру колеса</option>
+                        <option value="align">Развал-схождение — от 1300 ₽</option>
+                        <option value="rim">Правка дисков — от 500 ₽</option>
+                        <option value="repair">Ремонт шин и прочее — жгут, камера, датчики</option>
+                    </select>
+                </div>
+                <div class="form-group svc-tab-select-group" hidden>
+                    <label for="svcTabSelect">Дополнительные работы</label>
+                    <select id="svcTabSelect" class="auth-input-field">
+                        <option value="align">Развал-схождение</option>
+                        <option value="rim">Правка дисков</option>
+                        <option value="repair">Ремонт шин</option>
+                        <option value="other">Прочие работы</option>
+                    </select>
                 </div>
             </div>
 
@@ -101,9 +113,9 @@
             <!-- ===== ПРОЧИЕ РАБОТЫ: скрыты; открываются кнопкой «Добавить услуги» (табы).
                    Единственная кнопка — её копия вставляется ПОД калькулятор (см. tyre-calculator.js) ===== -->
             <div class="form-group svc-extra-wrap">
-                <button type="button" class="svc-add-btn" id="svcAddBtn">＋ Добавить услуги</button>
+                <button type="button" class="svc-add-btn" id="svcAddBtn">Добавить услуги</button>
                 <div id="svcExtraBlock" hidden>
-                    <!-- Табы категорий -->
+                    <!-- Табы категорий (стили — как week-btn в guest.css) -->
                     <div class="svc-tabs" id="svcTabs">
                         <button type="button" class="svc-tab active" data-tab="align">Развал-схождение</button>
                         <button type="button" class="svc-tab" data-tab="rim">Правка дисков</button>
@@ -112,7 +124,6 @@
                     </div>
 
                     <div class="svc-tab-panel active" data-panel="align">
-                        <div class="svc-category-title">Развал-схождение</div>
                         <div class="svc-items-grid">
                             <label class="service-item"><input type="checkbox" value="Развал-схождение передняя ось" data-price="1900" data-time="60" data-category="Развал-схождение"><span>Передняя ось</span> <b>от 1900 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Развал-схождение две оси" data-price="2500" data-time="90" data-category="Развал-схождение"><span>Две оси</span> <b>от 2500 ₽</b></label>
@@ -125,8 +136,7 @@
                     </div>
 
                     <div class="svc-tab-panel" data-panel="rim">
-                        <div class="svc-category-title">Правка дисков</div>
-                        <div class="svc-items-grid">
+                                                <div class="svc-items-grid">
                             <label class="service-item"><input type="checkbox" value="Правка легкосплавного диска 13-15" data-price="1000" data-time="60" data-category="Правка дисков"><span>Легкосплавный 13–15"</span> <b>от 1000 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Правка легкосплавного диска 16+ " data-price="1300" data-time="60" data-category="Правка дисков"><span>Легкосплавный 16" и более</span> <b>от 1300 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Правка стального диска 13-14" data-price="500" data-time="45" data-category="Правка дисков"><span>Стальной 13–14"</span> <b>от 500 ₽</b></label>
@@ -135,8 +145,7 @@
                     </div>
 
                     <div class="svc-tab-panel" data-panel="repair">
-                        <div class="svc-category-title">Ремонт шин</div>
-                        <div class="svc-items-grid">
+                                                <div class="svc-items-grid">
                             <label class="service-item"><input type="checkbox" value="Ремонт шины жгутом/грибком" data-price="350" data-time="30" data-category="Ремонт"><span>Ремонт жгутом / грибком</span> <b>от 350 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Ремонт камеры" data-price="350" data-time="30" data-category="Ремонт"><span>Ремонт камеры</span> <b>от 350 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Пластырь R-18" data-price="450" data-time="30" data-category="Ремонт"><span>Пластырь R-18</span> <b>от 450 ₽</b></label>
@@ -147,8 +156,7 @@
                     </div>
 
                     <div class="svc-tab-panel" data-panel="other">
-                        <div class="svc-category-title">Прочие работы</div>
-                        <div class="svc-items-grid">
+                                                <div class="svc-items-grid">
                             <label class="service-item"><input type="checkbox" value="Чистка борта диска" data-price="100" data-time="15" data-category="Прочее"><span>Чистка борта диска (1 борт)</span> <b>100–150 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Установка камеры" data-price="150" data-time="20" data-category="Прочее"><span>Установка камеры</span> <b>150 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Программирование датчика TPMS" data-price="450" data-time="20" data-category="Прочее"><span>Программирование датчика</span> <b>от 450 ₽/шт</b></label>
@@ -183,7 +191,7 @@
             <div class="form-group">
                 <label>Свободное время *</label>
                 <div id="slotsContainer" class="slots-grid">
-                    <div class="slots-empty-notice" style="grid-column: 1 / -1;">📌 Выберите филиал, дату и пост обслуживания</div>
+                    <div class="slots-empty-notice" style="grid-column: 1 / -1;">Выберите филиал, дату и пост обслуживания</div>
                 </div>
                 <input type="hidden" id="selectedTime">
             </div>

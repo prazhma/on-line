@@ -111,7 +111,7 @@ function renderTyreCalculator() {
     box.className = 'tyre-calc-box';
     box.innerHTML = `
         <div class="tyre-calc-header">
-            <span class="tyre-calc-title">🛞 Калькулятор шиномонтажа</span>
+            <span class="tyre-calc-title">Калькулятор шиномонтажа</span>
             <span class="tyre-calc-subtitle">Прайс шинных центров ПИН-АВТО от 01.10.2026</span>
         </div>
 
