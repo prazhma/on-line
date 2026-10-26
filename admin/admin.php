@@ -18,6 +18,7 @@ admin_require_auth();
     <link rel="stylesheet" href="admin.css">
 
     <script src="js/admin.js" defer></script>
+    <script src="js/services.js" defer></script>
 </head>
 <body>
 
@@ -53,6 +54,34 @@ admin_require_auth();
                     <tbody id="branchesTableBody"></tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- Редактор подразделений: посты, графики, время работы -->
+        <div class="cabinet-section-title">
+            <span>🔧 Редактор подразделения (посты и график работы)</span>
+        </div>
+
+        <div class="branch-editor-box" id="branchEditorBox">
+            <div class="branch-editor-toolbar">
+                <label class="branch-editor-label" for="editorBranchSelect">Подразделение:</label>
+                <select id="editorBranchSelect" class="auth-input-field branch-editor-select">
+                    <option value="">-- Загрузка... --</option>
+                </select>
+                <button type="button" class="week-btn" id="editorReloadBtn" onclick="loadBranchEditor()">Обновить</button>
+            </div>
+            <div id="editorMessage" class="message" style="display:none;"></div>
+            <div id="editorContent"><div class="empty-info-box">Выберите подразделение для редактирования.</div></div>
+        </div>
+
+        <!-- Редактор каталога работ: названия, категории, цены по филиалам, время выполнения -->
+        <div class="cabinet-section-title">
+            <span>🛠 Каталог работ (services.json): стоимость и время выполнения</span>
+        </div>
+
+        <div class="branch-editor-box" id="servicesEditorBox">
+            <div id="servicesEditorToolbar" class="svc-toolbar"></div>
+            <div id="svcMessage" class="message" style="display:none;"></div>
+            <div id="servicesEditorContent"><div class="empty-info-box">Загрузка каталога...</div></div>
         </div>
 
         <!-- Раздел синхронизации -->
