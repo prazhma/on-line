@@ -20,37 +20,59 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-/* ---------- Синхронизация чекбоксов группы «Шиномонтаж»
-   с внутренними контролами калькулятора (#tcOps, допы) ---------- */
+/* ---------- Появление / исчезновение шинного калькулятора
+   (по выбору категории «Шиномонтаж» из блока #svcCategoryCards) ---------- */
 
-function syncTyreCalcFromCheckboxes() {
-    const box = document.getElementById('tyreCalcBox');
-    if (!box) return;
+function selectedSvcCategory() {
+    const r = document.querySelector('input[name="svcCategory"]:checked');
+    return r ? r.value : '';
+}
 
-    document.querySelectorAll('#svcGroupTyre input[data-tc-op]').forEach(cb => {
-        const target = box.querySelector(`.tc-op[value="${cb.dataset.tcOp}"]`);
-        if (!target) return;
-        if (target.checked !== cb.checked) {
-            if (window.__tyreCalcSyncFromBox) {
-                cb.checked = target.checked;
-            } else {
-                target.checked = cb.checked;
-            }
+function refreshServiceTyreCalculator() {
+    const need = selectedSvcCategory() === 'tire';
+    let box = document.getElementById('tyreCalcBox');
+
+    if (need) {
+        loadTyrePrices().then(() => {
+            renderTyreCalculator();
+            calcTyrePrice();
+            updateServiceSummary();
+            checkAndLoadSlots(); // длительность визита могла измениться -> обновить слоты
+            // после расчёта — предложить добавить другие работы
+            suggestExtraServices();
+        });
+    } else if (box) {
+        box.remove();
+        window.__tyreCalcResult = null;
+        updateServiceSummary();
+        checkAndLoadSlots();
+    }
+}
+
+/* Предложение смежных услуг: подсвечиваем кнопку «Добавить услуги» */
+function suggestExtraServices() {
+    const btn = document.getElementById('svcAddBtn');
+    if (!btn || !document.getElementById('svcExtraBlock').hidden) return;
+    btn.classList.add('suggest');
+    btn.textContent = '＋ Добавить сопутствующие услуги (развал, правка дисков, ремонт)';
+}
+
+/* Авто-раскрытие блока при выборе нешиномонтажной категории */
+function applyCategoryToExtras(cat) {
+    const block = document.getElementById('svcExtraBlock');
+    const btn = document.getElementById('svcAddBtn');
+    if (!block || !btn) return;
+    const map = { align: 'Развал-схождение', rim: 'Правка дисков', repair: 'Ремонт' };
+    if (map[cat]) {
+        block.hidden = false;
+        btn.classList.remove('suggest');
+        btn.textContent = '－ Свернуть услуги';
+        const title = [...block.querySelectorAll('.svc-category-title')].find(t => t.textContent.trim() === map[cat]);
+        const target = title ? title.closest('.svc-category-block') : null;
+        if (target && typeof target.scrollIntoView === 'function') {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-    });
-
-    const extras = { runflat: 'tcRunflat', wash: 'tcWash', nitrogen: 'tcNitrogenFill', utilization: 'tcUtilization' };
-    document.querySelectorAll('#svcGroupTyre input[data-tc-extra]').forEach(cb => {
-        const id = extras[cb.dataset.tcExtra];
-        const target = id ? box.querySelector('#' + id) : null;
-        if (target && target.checked !== cb.checked) {
-            if (window.__tyreCalcSyncFromBox) {
-                cb.checked = target.checked;
-            } else {
-                target.checked = cb.checked;
-            }
-        }
-    });
+    }
 }
 
 /* ---------- Итог страницы ---------- */
@@ -60,9 +82,7 @@ function updateServiceSummary() {
 
     document.querySelectorAll('#serviceCalcForm .service-item input:checked').forEach(cb => {
         time += parseInt(cb.dataset.time || 0);
-        if (cb.dataset.category !== 'Шиномонтаж') {
-            basePrice += parseInt(cb.dataset.price || 0);
-        }
+        basePrice += parseInt(cb.dataset.price || 0);
     });
 
     const tc = window.__tyreCalcResult;
@@ -74,35 +94,6 @@ function updateServiceSummary() {
     if (priceEl) priceEl.textContent = 'от ' + total + ' ₽';
 
     return { time, total };
-}
-
-/* ---------- Появление / исчезновение шинного калькулятора ---------- */
-
-function refreshServiceTyreCalculator() {
-    const need = document.querySelectorAll('#svcGroupTyre input[type="checkbox"]:checked').length > 0;
-    let box = document.getElementById('tyreCalcBox');
-
-    if (need) {
-        loadTyrePrices().then(() => {
-            const wasRendered = !!document.getElementById('tyreCalcBox');
-            if (!wasRendered) {
-                const anyOp = document.querySelector('#svcGroupTyre input[data-tc-op]:checked');
-                if (!anyOp) document.querySelectorAll('#svcGroupTyre input[data-tc-op]').forEach(cb => { cb.checked = true; });
-            }
-            window.__tyreCalcSyncFromBox = false;
-            renderTyreCalculator();
-            calcTyrePrice();
-            syncTyreCalcFromCheckboxes();
-            calcTyrePrice();
-            updateServiceSummary();
-            checkAndLoadSlots(); // длительность визита могла измениться -> обновить слоты
-        });
-    } else if (box) {
-        box.remove();
-        window.__tyreCalcResult = null;
-        updateServiceSummary();
-        checkAndLoadSlots();
-    }
 }
 
 /* ---------- Колбэк tyre-calculator.js ---------- */
@@ -402,27 +393,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     initServiceBookingModule();
 
-    // Изменения внутри шинного калькулятора -> зеркалим в список услуг + пересчёт
+    // Выбор категории работ: Шиномонтаж -> калькулятор; прочие -> авто-раскрытие блока услуг
     form.addEventListener('change', function (e) {
-        const box = document.getElementById('tyreCalcBox');
-        if (!box || !box.contains(e.target)) return;
-        setTimeout(function () {
-            window.__tyreCalcSyncFromBox = true;
-            syncTyreCalcFromCheckboxes();
-            window.__tyreCalcSyncFromBox = false;
-            updateServiceSummary();
-        }, 0);
+        if (!e.target.matches('input[name="svcCategory"]')) return;
+        document.querySelectorAll('.svc-cat-card').forEach(c => c.classList.remove('checked'));
+        e.target.closest('.svc-cat-card')?.classList.add('checked');
+        refreshServiceTyreCalculator();
+        applyCategoryToExtras(e.target.value);
     });
 
+    // Кнопка «Добавить услуги» — раскрытие/сворачивание скрытого блока работ
+    const svcAddBtn = document.getElementById('svcAddBtn');
+    const svcExtraBlock = document.getElementById('svcExtraBlock');
+    if (svcAddBtn && svcExtraBlock) {
+        svcAddBtn.addEventListener('click', function () {
+            svcExtraBlock.hidden = !svcExtraBlock.hidden;
+            svcAddBtn.classList.remove('suggest');
+            svcAddBtn.textContent = svcExtraBlock.hidden ? '＋ Добавить услуги' : '－ Свернуть услуги';
+        });
+    }
+
+    // Отмеченные чекбоксы прочих работ -> пересчёт итога + слоты
     form.addEventListener('change', function (e) {
         const t = e.target;
         if (!t.matches('.service-item input[type="checkbox"]')) return;
-        if (t.dataset.category === 'Шиномонтаж') {
-            refreshServiceTyreCalculator();
-        } else {
-            updateServiceSummary();
-            checkAndLoadSlots();
-        }
+        updateServiceSummary();
+        checkAndLoadSlots();
     });
 
     // Маска телефона — как в guest.js

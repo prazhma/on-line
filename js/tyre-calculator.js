@@ -77,7 +77,16 @@ function renderTyreCalculator() {
             </div>
         </div>
 
+        <div class="tyre-calc-size-preview">
+            Размер колеса: <b id="tcSizeLabel">—</b>
+            <span class="tc-lowprofile-badge" id="tcLowProfileBadge" hidden>низкопрофильная (тариф LP)</span>
+        </div>
+
         <div class="tyre-calc-section-title">Услуги (полный пакет / по выбору):</div>
+        <div class="tc-packet-toggle">
+            <button type="button" class="tc-packet-btn active" id="tcPacketFull">Полный пакет</button>
+            <button type="button" class="tc-packet-btn" id="tcPacketCustom">По выбору</button>
+        </div>
         <div class="tyre-calc-ops" id="tcOps"></div>
 
         <div class="tyre-calc-extra">
@@ -145,6 +154,37 @@ function renderTyreCalculator() {
             updateSummary();
         });
     });
+
+    // Переключатель «Полный пакет / По выбору» (как packetType std/prm на shinservice)
+    const packetFullBtn = document.getElementById('tcPacketFull');
+    const packetCustomBtn = document.getElementById('tcPacketCustom');
+    function setPacketMode(full) {
+        window.__tcPacketFull = full;
+        packetFullBtn.classList.toggle('active', full);
+        packetCustomBtn.classList.toggle('active', !full);
+        if (full) {
+            // полный пакет: все 5 обязательных операций включены
+            box.querySelectorAll('.tc-op').forEach(cb => { cb.checked = true; });
+        }
+        calcTyrePrice();
+        updateSummary();
+    }
+    packetFullBtn.addEventListener('click', () => setPacketMode(true));
+    packetCustomBtn.addEventListener('click', () => setPacketMode(false));
+
+    // Если пользователь вручную снимает/ставит операцию — режим переключается на «По выбору»
+    box.querySelectorAll('.tc-op').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const allChecked = Array.from(box.querySelectorAll('.tc-op')).every(x => x.checked);
+            if (!allChecked && window.__tcPacketFull) setPacketModeSilent(false);
+            if (allChecked && !window.__tcPacketFull) setPacketModeSilent(true);
+        });
+    });
+    function setPacketModeSilent(full) {
+        window.__tcPacketFull = full;
+        packetFullBtn.classList.toggle('active', full);
+        packetCustomBtn.classList.toggle('active', !full);
+    }
 
     syncVehicleTypeByProfile();
     calcTyrePrice();
@@ -262,6 +302,14 @@ function calcTyrePrice() {
 
     document.getElementById('tcTotal').textContent = total + ' ₽';
     document.getElementById('tcPerWheel').textContent = total > 0 ? `(${perWheel} ₽ за 1 колесо)` : '';
+
+    // Превью размера колеса + бейдж низкопрофильной шины
+    const sizeLabel = document.getElementById('tcSizeLabel');
+    if (sizeLabel) {
+        sizeLabel.textContent = st.width && st.profile ? `${st.width}/${st.profile} R${st.diameter}` : `R${st.diameter}`;
+    }
+    const lpBadge = document.getElementById('tcLowProfileBadge');
+    if (lpBadge) lpBadge.hidden = !(isLowProfile(st.profile) && (st.vtKey === 'passenger_low' || st.vtKey === 'crossover' || st.vtKey === 'light_truck'));
 
     window.__tyreCalcResult = { total, perWheel, quantity: st.quantity, details, state: st };
     return total;

@@ -472,3 +472,40 @@ body {
 
 .svc-items-grid .service-item { justify-content: flex-start; gap: 8px; }
 .svc-items-grid .service-item b { margin-left: auto; color: #1e5799; font-size: 12px; white-space: nowrap; }
+
+/* ===== service.html: пошаговая топология (шаги, категории, кнопка «Добавить услуги») ===== */
+.svc-step-title { font-size: 15px; font-weight: 700; color: #1e293b; margin: 18px 0 10px; }
+.svc-cat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.svc-cat-card {
+    display: flex; flex-direction: column; gap: 4px; cursor: pointer;
+    border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; transition: all .15s ease; background: #fff;
+}
+.svc-cat-card:hover { border-color: #1e5799; }
+.svc-cat-card input { display: none; }
+.svc-cat-card b { font-size: 14px; color: #1e293b; }
+.svc-cat-card span { font-size: 11px; color: #64748b; }
+.svc-cat-card.checked { border-color: #e30613; background: #fef2f2; box-shadow: 0 0 0 2px rgba(227,6,19,.12); }
+.svc-add-btn {
+    width: 100%; padding: 12px; border: 2px dashed #cbd5e1; border-radius: 10px; background: #f8fafc;
+    color: #475569; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .15s ease;
+}
+.svc-add-btn:hover { border-color: #1e5799; color: #1e5799; }
+.svc-add-btn.suggest { border-color: #e30613; color: #e30613; background: #fff7f7; animation: svcPulse 1.6s infinite; }
+@keyframes svcPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(227,6,19,.18);} 50% { box-shadow: 0 0 0 6px rgba(227,6,19,0);} }
+
+/* Кнопки режима пакета в шинном калькуляторе */
+.tc-packet-toggle { display: flex; gap: 8px; margin-bottom: 10px; }
+.tc-packet-btn {
+    padding: 8px 16px; border: 2px solid #e2e8f0; border-radius: 8px; background: #fff;
+    font-weight: 600; font-size: 13px; color: #475569; cursor: pointer; transition: all .15s ease;
+}
+.tc-packet-btn:hover { border-color: #1e5799; }
+.tc-packet-btn.active { background: #1e5799; border-color: #1e5799; color: #fff; }
+
+/* Превью размера колеса + бейдж LP */
+.tyre-calc-size-preview { font-size: 13px; color: #334155; margin-bottom: 12px; }
+.tyre-calc-size-preview b { color: #e30613; font-size: 15px; }
+.tc-lowprofile-badge {
+    margin-left: 8px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
+}
