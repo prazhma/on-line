@@ -7,6 +7,12 @@
 body {
     background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('../img/login_bg.png') no-repeat center center fixed;
     background-size: cover;
+}
+
+/* Центрирование только для страниц входа/гостевой (класс задаётся на <body> в login/index/guest).
+   БЕЗ этого класса кабинет остаётся обычной блочной разметкой — иначе flex ломает сетку кабинета. */
+body.auth-center {
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
