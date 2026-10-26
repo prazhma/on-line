@@ -1,10 +1,24 @@
 /* ============================================================
-   СТРАНИЦА service.html — Калькулятор услуг (автономная)
-   Не трогает guest.html / guest.js. Использует общий модуль
-   js/tyre-calculator.js + данные tyre-prices.json.
-   Связка: чекбоксы с data-category="Шиномонтаж" запускают
-   шинный калькулятор; прочие услуги дают фиксированные цены.
+   СТРАНИЦА service.html — Калькулятор услуг + реальная запись
+   Автономная страница: не трогает guest.html / guest.js.
+   Подключённые функции проекта:
+   - get_branches.php      (филиалы + посты из config.json)
+   - getslots_b2b.php      (реальные слоты STOCRM по дате/посту)
+   - booking_handler.php   (создание сделки + брони в STOCRM)
+   - js/tyre-calculator.js + tyre-prices.json (шинный калькулятор)
    ============================================================ */
+
+let svcGlobalConfig = null;
+
+const daysOfWeek = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 /* ---------- Синхронизация чекбоксов группы «Шиномонтаж»
    с внутренними контролами калькулятора (#tcOps, допы) ---------- */
@@ -13,21 +27,18 @@ function syncTyreCalcFromCheckboxes() {
     const box = document.getElementById('tyreCalcBox');
     if (!box) return;
 
-    // Операции: чекбокс в списке <-> чекбокс калькулятора (двусторонняя синхронизация,
-    // без dispatch — calcTyrePrice вызывается явно, чтобы не гонять рекурсивные change)
     document.querySelectorAll('#svcGroupTyre input[data-tc-op]').forEach(cb => {
         const target = box.querySelector(`.tc-op[value="${cb.dataset.tcOp}"]`);
         if (!target) return;
         if (target.checked !== cb.checked) {
             if (window.__tyreCalcSyncFromBox) {
-                cb.checked = target.checked;   // источник истины — калькулятор
+                cb.checked = target.checked;
             } else {
-                target.checked = cb.checked;   // источник истины — список услуг
+                target.checked = cb.checked;
             }
         }
     });
 
-    // Допы: runflat / wash / nitrogen / utilization
     const extras = { runflat: 'tcRunflat', wash: 'tcWash', nitrogen: 'tcNitrogenFill', utilization: 'tcUtilization' };
     document.querySelectorAll('#svcGroupTyre input[data-tc-extra]').forEach(cb => {
         const id = extras[cb.dataset.tcExtra];
@@ -42,14 +53,13 @@ function syncTyreCalcFromCheckboxes() {
     });
 }
 
-/* ---------- Итог страницы (независимый от guest.js updateSummary) ---------- */
+/* ---------- Итог страницы ---------- */
 
 function updateServiceSummary() {
     let time = 0, basePrice = 0;
 
     document.querySelectorAll('#serviceCalcForm .service-item input:checked').forEach(cb => {
         time += parseInt(cb.dataset.time || 0);
-        // Цены шиномонтажа берём из калькулятора, а не из data-price (=0)
         if (cb.dataset.category !== 'Шиномонтаж') {
             basePrice += parseInt(cb.dataset.price || 0);
         }
@@ -63,7 +73,7 @@ function updateServiceSummary() {
     if (timeEl) timeEl.textContent = time + ' мин';
     if (priceEl) priceEl.textContent = 'от ' + total + ' ₽';
 
-    return total;
+    return { time, total };
 }
 
 /* ---------- Появление / исчезновение шинного калькулятора ---------- */
@@ -76,52 +86,228 @@ function refreshServiceTyreCalculator() {
         loadTyrePrices().then(() => {
             const wasRendered = !!document.getElementById('tyreCalcBox');
             if (!wasRendered) {
-                // при первом появлении включаем полный пакет, если в списке ничего не отмечено из операций
                 const anyOp = document.querySelector('#svcGroupTyre input[data-tc-op]:checked');
                 if (!anyOp) document.querySelectorAll('#svcGroupTyre input[data-tc-op]').forEach(cb => { cb.checked = true; });
             }
             window.__tyreCalcSyncFromBox = false;
-            renderTyreCalculator();          // идемпотентен: не пересоздаёт блок
-            calcTyrePrice();                 // перерисует select диаметров по типу авто + цены
-            syncTyreCalcFromCheckboxes();    // список услуг -> калькулятор (источник: список)
-            calcTyrePrice();                 // пересчёт с учётом синхронизированных операций
+            renderTyreCalculator();
+            calcTyrePrice();
+            syncTyreCalcFromCheckboxes();
+            calcTyrePrice();
             updateServiceSummary();
+            checkAndLoadSlots(); // длительность визита могла измениться -> обновить слоты
         });
     } else if (box) {
         box.remove();
         window.__tyreCalcResult = null;
         updateServiceSummary();
+        checkAndLoadSlots();
     }
 }
 
-/* ---------- Переопределение колбэков tyre-calculator.js -------
-   На этой странице нет гостевой формы, поэтому вместо updateSummary
-   и отправки payload используем локальные функции. -------------- */
+/* ---------- Колбэк tyre-calculator.js ---------- */
 
 window.updateSummary = function () {
-    updateServiceSummary();
-    return 60; // длительность для этой страницы не используется в слотах
+    const s = updateServiceSummary();
+    return s.time || 60;
 };
 
-/* ---------- Отправка заявки (локально, без бэкенда guest.php) ---
-   Заявка сохраняется в localStorage как "service_request" и
-   показывается сообщение с саммари. При привязке к проекту здесь
-   будет fetch на нужный API. ------------------------------------ */
+/* ================= ФИЛИАЛЫ / ПОСТЫ (get_branches.php) ================= */
 
-window.handleServiceCalcSubmit = function (e) {
+async function initServiceBookingModule() {
+    buildWeekTab(0);
+    const branchSelect = document.getElementById('branchSelect');
+    if (!branchSelect) return;
+
+    try {
+        const res = await fetch('get_branches.php');
+        const data = await res.json();
+        const branchKeys = data.branches ? Object.keys(data.branches) : [];
+
+        if (data.status !== 'success' || branchKeys.length === 0) {
+            branchSelect.innerHTML = '<option value="">Филиалы не найдены в конфигурации</option>';
+            return;
+        }
+
+        svcGlobalConfig = data.config || { branches: data.branches };
+
+        branchSelect.innerHTML = '<option value="">-- Выберите филиал --</option>';
+        for (let id of branchKeys) {
+            let branch = data.branches[id];
+            let opt = document.createElement('option');
+            let cId = branch.CUSTOMER_ID || branch.id || id;
+            let cName = branch.CUSTOMER_NAME || branch.name || ('Филиал #' + cId);
+            let cAddr = branch.ADDRESS || branch.address || '';
+            opt.value = cId;
+            opt.setAttribute('data-name', cName);
+            opt.textContent = cName + (cAddr ? ' (' + cAddr + ')' : '');
+            branchSelect.appendChild(opt);
+        }
+
+        branchSelect.addEventListener('change', function () {
+            let branchId = this.value;
+            let postSelect = document.getElementById('postSelect');
+            postSelect.innerHTML = '<option value="">-- Выберите пост --</option>';
+            document.getElementById('selectedTime').value = '';
+
+            if (!svcGlobalConfig || !branchId || !svcGlobalConfig.branches[branchId]) {
+                postSelect.disabled = true;
+                resetSlotsNotice();
+                return;
+            }
+
+            let posts = svcGlobalConfig.branches[branchId].posts || {};
+            let postIds = Object.keys(posts);
+            if (postIds.length === 0) {
+                postSelect.disabled = true;
+                resetSlotsNotice();
+                return;
+            }
+
+            for (let pId of postIds) {
+                let opt = document.createElement('option');
+                opt.value = posts[pId].POST_ID || pId;
+                opt.textContent = posts[pId].NAME || ('Пост #' + pId);
+                postSelect.appendChild(opt);
+            }
+            postSelect.disabled = false;
+            if (postIds.length === 1) {
+                postSelect.value = posts[postIds[0]].POST_ID || postIds[0];
+            }
+            checkAndLoadSlots();
+        });
+
+        document.getElementById('postSelect').addEventListener('change', checkAndLoadSlots);
+
+    } catch (e) {
+        console.error('Ошибка загрузки филиалов:', e);
+        branchSelect.innerHTML = '<option value="">Ошибка загрузки филиалов</option>';
+    }
+}
+
+function resetSlotsNotice() {
+    const c = document.getElementById('slotsContainer');
+    if (c) c.innerHTML = '<div class="slots-empty-notice" style="grid-column: 1 / -1;">📌 Выберите филиал, дату и пост обслуживания</div>';
+}
+
+/* ================= ДАТЫ (недели, как в guest.js) ================= */
+
+function buildWeekTab(weekIndex) {
+    let g4 = document.getElementById('grid_v4');
+    if (!g4) return;
+    g4.innerHTML = '';
+    let today = new Date();
+    let startIdx = weekIndex === 0 ? 0 : 7;
+
+    for (let i = 0; i < 7; i++) {
+        let d = new Date(today);
+        d.setDate(today.getDate() + startIdx + i);
+        let dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        let label = (startIdx === 0 && i === 0) ? 'Сегодня' : daysOfWeek[d.getDay()];
+
+        let c4 = document.createElement('div');
+        c4.className = 'card-v4' + (i === 0 && weekIndex === 0 ? ' selected' : '');
+        c4.setAttribute('data-date', dateStr);
+        c4.innerHTML = `<div class="name">${label}</div><div class="date">${d.getDate()} ${months[d.getMonth()]}</div>`;
+        c4.onclick = () => selectDate(dateStr, c4);
+        g4.appendChild(c4);
+
+        if (i === 0 && weekIndex === 0) {
+            const dateInp = document.getElementById('dateSelect');
+            if (dateInp) dateInp.value = dateStr;
+        }
+    }
+}
+
+function selectDate(dateStr, element) {
+    document.querySelectorAll('#grid_v4 .card-v4').forEach(el => el.classList.remove('selected'));
+    element.classList.add('selected');
+    const dateInp = document.getElementById('dateSelect');
+    if (dateInp) dateInp.value = dateStr;
+    document.getElementById('selectedTime').value = '';
+    checkAndLoadSlots();
+}
+
+window.switchWeekTab = function (idx) {
+    document.getElementById('btnWeekCurrent').classList.toggle('active', idx === 0);
+    document.getElementById('btnWeekNext').classList.toggle('active', idx === 1);
+    buildWeekTab(idx);
+    let firstCard = document.querySelector('#grid_v4 .card-v4');
+    if (firstCard) firstCard.click();
+};
+
+/* ================= СЛОТЫ (getslots_b2b.php) ================= */
+
+async function checkAndLoadSlots() {
+    let container = document.getElementById('slotsContainer');
+    let branchId = document.getElementById('branchSelect').value;
+    let postId = document.getElementById('postSelect').value;
+    let date = document.getElementById('dateSelect').value;
+
+    if (!branchId || !postId || !date || !container) return;
+
+    container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #666; font-weight: bold; padding: 10px;">Загрузка свободных окон...</div>';
+
+    const summary = updateServiceSummary();
+    const duration = Math.max(summary.time, 30); // минимум 30 мин
+
+    try {
+        let res = await fetch(`getslots_b2b.php?customer_id=${branchId}&post_id=${postId}&date=${date}&duration=${duration}`);
+        let data = await res.json();
+
+        if (data.status === 'success') {
+            container.innerHTML = '';
+            if (!data.slots || data.slots.length === 0) {
+                container.innerHTML = '<span style="color: #dc2626; grid-column: 1 / -1; font-weight: bold; text-align: center; padding: 10px;">Нет свободного времени на выбранную дату</span>';
+                return;
+            }
+            data.slots.forEach(slot => {
+                let btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'slot-btn' + (slot.available ? '' : ' disabled');
+                btn.textContent = slot.time;
+                btn.disabled = !slot.available;
+                if (slot.available) {
+                    btn.onclick = () => {
+                        document.querySelectorAll('#slotsContainer .slot-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        document.getElementById('selectedTime').value = slot.time;
+                    };
+                }
+                container.appendChild(btn);
+            });
+        } else {
+            container.innerHTML = `<span style="color: #dc2626; grid-column: 1 / -1; font-weight: bold; text-align: center; padding: 10px;">${data.message || 'Ошибка расчета слотов'}</span>`;
+        }
+    } catch (e) {
+        console.error('Ошибка слотов:', e);
+        container.innerHTML = '<span style="color: #dc2626; grid-column: 1 / -1; font-weight: bold; text-align: center; padding: 10px;">Ошибка связи со STOCRM</span>';
+    }
+}
+
+/* ================= ОТПРАВКА ЗАЯВКИ (booking_handler.php) ================= */
+
+window.handleServiceCalcSubmit = async function (e) {
     e.preventDefault();
 
     const name = document.getElementById('serviceName').value.trim();
     const phone = document.getElementById('servicePhone').value.trim();
+    const carBrand = document.getElementById('serviceCarBrand').value.trim();
+    const branchId = document.getElementById('branchSelect').value;
+    const postId = document.getElementById('postSelect').value;
+    const date = document.getElementById('dateSelect').value;
+    const time = document.getElementById('selectedTime').value;
     const msg = document.getElementById('serviceCalcMsg');
     msg.classList.add('is-visible');
 
+    // --- Собираем услуги ---
     const services = [];
     document.querySelectorAll('#serviceCalcForm .service-item input:checked').forEach(cb => {
         services.push({
             name: cb.value,
             category: cb.dataset.category,
-            price: parseInt(cb.dataset.price || 0)
+            price: parseInt(cb.dataset.price || 0),
+            duration: parseInt(cb.dataset.time || 0)
         });
     });
 
@@ -132,47 +318,91 @@ window.handleServiceCalcSubmit = function (e) {
             name: `Шиномонтаж ${st.width}/${st.profile} R${st.diameter}, ${st.quantity} кол.`,
             category: 'Шиномонтаж',
             price: tc.total,
+            duration: Math.max(services.reduce((s, x) => s + (x.duration || 0), 0), 30),
             details: tc.details
         });
     }
 
     if (services.length === 0) {
-        msg.className = 'message error';
+        msg.className = 'message error is-visible';
         msg.textContent = 'Выберите хотя бы одну услугу.';
         return false;
     }
 
-    const request = {
-        created_at: new Date().toISOString(),
-        name, phone,
-        services,
-        total: updateServiceSummary()
-    };
+    if (!branchId || !postId || !date || !time) {
+        msg.className = 'message error is-visible';
+        msg.textContent = 'Выберите филиал, дату и свободное время визита.';
+        return false;
+    }
+
+    const summary = updateServiceSummary();
+    const durationMins = Math.max(summary.time, 30);
+
+    // payload для booking_handler.php (формат идентичен guest.js)
+    const worksArr = services.map(s => ({ name: s.name, price: s.price, duration: s.duration || 30 }));
+
+    const formData = new FormData();
+    formData.append('customer_id', branchId);
+    formData.append('post_id', postId);
+    formData.append('date', date);
+    formData.append('time', time);
+    formData.append('name', name);
+    formData.append('phone', phone);
+    formData.append('car_brand', carBrand);
+    formData.append('car_plate', '');
+    formData.append('duration', durationMins);
+    formData.append('services_json', JSON.stringify(worksArr));
+    formData.append('is_guest', '1');
+
+    const submitBtn = document.getElementById('serviceSubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Отправка заявки в STOCRM...';
 
     try {
-        const prev = JSON.parse(localStorage.getItem('service_requests') || '[]');
-        prev.push(request);
-        localStorage.setItem('service_requests', JSON.stringify(prev));
-    } catch (err) { /* localStorage может быть недоступен */ }
+        let res = await fetch('booking_handler.php', { method: 'POST', body: formData });
+        let result = await res.json();
 
-    const list = request.services.map(s => `• ${s.name} — ${s.price} ₽`).join('<br>');
-    msg.className = 'message success';
-    msg.innerHTML = `Спасибо, ${name || 'клиент'}! Ваша заявка сформирована:<br>${list}<br><b>Итого: от ${request.total} ₽</b><br><br>Менеджер свяжется с вами по номеру ${phone} для подтверждения времени визита.`;
+        if (result.status === 'success') {
+            msg.className = 'message success is-visible';
+            msg.innerHTML = `✔ Заявка создана! Клиент <b>${escapeHtml(name)}</b>, ждём вас <b>${escapeHtml(date)} в ${escapeHtml(time)}</b>.<br>Менеджер свяжется для подтверждения по номеру ${escapeHtml(phone)}.`;
+            submitBtn.style.display = 'none';
+
+            setTimeout(() => {
+                document.getElementById('serviceCalcForm').reset();
+                msg.className = 'message';
+                msg.style.display = 'none';
+                submitBtn.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Создать заявку на запись';
+                buildWeekTab(0);
+                updateServiceSummary();
+            }, 8000);
+        } else {
+            msg.className = 'message error is-visible';
+            msg.textContent = 'Ошибка: ' + (result.message || 'Не удалось создать запись');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Создать заявку на запись';
+        }
+    } catch (err) {
+        console.error('Ошибка записи:', err);
+        msg.className = 'message error is-visible';
+        msg.textContent = 'Ошибка отправки данных: ' + err.message;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Создать заявку на запись';
+    }
 
     return false;
 };
 
-/* ---------- Инициализация ---------- */
+/* ================= ИНИЦИАЛИЗАЦИЯ ================= */
 
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('serviceCalcForm');
     if (!form) return;
 
-    // Делегированный слушатель: изменения внутри шинного калькулятора
-    // зеркалятся на чекбоксы списка услуг и пересчитывают итог страницы.
-    // Работаем через setTimeout(0): к этому моменту внутренний слушатель
-    // калькулятора уже выполнил calcTyrePrice — синхронизируем список по
-    // финальному состоянию и обновляем сводку страницы.
+    initServiceBookingModule();
+
+    // Изменения внутри шинного калькулятора -> зеркалим в список услуг + пересчёт
     form.addEventListener('change', function (e) {
         const box = document.getElementById('tyreCalcBox');
         if (!box || !box.contains(e.target)) return;
@@ -187,15 +417,15 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('change', function (e) {
         const t = e.target;
         if (!t.matches('.service-item input[type="checkbox"]')) return;
-
         if (t.dataset.category === 'Шиномонтаж') {
             refreshServiceTyreCalculator();
         } else {
             updateServiceSummary();
+            checkAndLoadSlots();
         }
     });
 
-    // Маска телефона — как в guest.js (упрощённая)
+    // Маска телефона — как в guest.js
     const phoneEl = document.getElementById('servicePhone');
     if (phoneEl) {
         phoneEl.addEventListener('input', function () {

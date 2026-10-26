@@ -107,6 +107,40 @@
                 <div>Стоимость (оценка): <span id="totalPrice">от 0 ₽</span></div>
             </div>
 
+            <!-- ===== ФИЛИАЛ / ПОСТ / ДАТА / ВРЕМЯ (реальное расписание STOCRM) ===== -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="branchSelect">Филиал *</label>
+                    <select id="branchSelect" class="auth-input-field">
+                        <option value="">-- Загрузка филиалов... --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="postSelect">Пост обслуживания</label>
+                    <select id="postSelect" class="auth-input-field" disabled>
+                        <option value="">-- Сначала выберите филиал --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Дата визита *</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 12px; max-width: 400px;">
+                    <button type="button" class="week-btn active" id="btnWeekCurrent" onclick="switchWeekTab(0)">Эта неделя</button>
+                    <button type="button" class="week-btn" id="btnWeekNext" onclick="switchWeekTab(1)">Следующая неделя</button>
+                </div>
+                <div class="grid-v4" id="grid_v4"></div>
+                <input type="hidden" id="dateSelect">
+            </div>
+
+            <div class="form-group">
+                <label>Свободное время *</label>
+                <div id="slotsContainer" class="slots-grid">
+                    <div class="slots-empty-notice" style="grid-column: 1 / -1;">📌 Выберите филиал, дату и пост обслуживания</div>
+                </div>
+                <input type="hidden" id="selectedTime">
+            </div>
+
             <!-- ===== КОНТАКТЫ ДЛЯ ЗАПИСИ ===== -->
             <div class="form-row">
                 <div class="form-group">
@@ -119,7 +153,12 @@
                 </div>
             </div>
 
-            <button type="submit" class="submit-btn" id="serviceSubmitBtn">Оставить заявку</button>
+            <div class="form-group">
+                <label for="serviceCarBrand">Марка авто (необязательно)</label>
+                <input type="text" id="serviceCarBrand" class="auth-input-field" placeholder="Например: Kia Rio">
+            </div>
+
+            <button type="submit" class="submit-btn" id="serviceSubmitBtn">Создать заявку на запись</button>
         </form>
 
         <div id="serviceCalcMsg" class="message"></div>
