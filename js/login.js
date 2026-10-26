@@ -252,7 +252,11 @@ async function sendSelectedCode() {
         const data = await res.json();
 
         if (data.status === 'success') {
-            if (currentAuthRole === 'b2b') {
+            if (data.show_code && data.code) {
+                // Отправка SMS/Email приостановлена — показываем код в модалке
+                showCodeModal(String(data.code));
+                document.getElementById('otpNotice').textContent = 'Код показан на экране (отправка временно приостановлена)';
+            } else if (currentAuthRole === 'b2b') {
                 document.getElementById('otpNotice').textContent = currentChannel === 'sms'
                     ? `Код отправлен по SMS представителю (${b2bState.company.masked_phone})`
                     : `Код отправлен на корпоративную почту (${b2bState.company.masked_email})`;
@@ -327,6 +331,37 @@ function resetOtpBoxes() {
         const first = document.getElementById('otp_1');
         if (first) first.focus();
     }, 100);
+}
+
+// ============================================================
+// МОДАЛКА ПОКАЗА КОДА (режим "show": отправка SMS/Email приостановлена)
+// Управление режимом — на сервере: php api/otp_mode.php show|send
+// ============================================================
+let pendingOtpCode = null;
+
+function showCodeModal(code) {
+    pendingOtpCode = code;
+    const modal = document.getElementById('codeShowModal');
+    const val = document.getElementById('codeShowValue');
+    if (!modal || !val) return;
+    val.textContent = code;
+    modal.classList.add('is-open');
+}
+
+function closeCodeShowModal() {
+    const modal = document.getElementById('codeShowModal');
+    if (modal) modal.classList.remove('is-open');
+
+    // Автозаполняем поля кода и переходим к экрану ввода
+    if (pendingOtpCode && pendingOtpCode.length === 4) {
+        for (let i = 0; i < 4; i++) {
+            const el = document.getElementById(`otp_${i + 1}`);
+            if (el) el.value = pendingOtpCode[i];
+        }
+    }
+    goToStep('otp');
+    const first = document.getElementById('otp_1');
+    if (first) setTimeout(() => first.focus(), 150);
 }
 
 async function verifyOtpCode(code) {
