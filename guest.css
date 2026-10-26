@@ -445,3 +445,30 @@ body {
 .tyre-calc-total { color: #e30613; font-size: 18px; }
 .tyre-calc-per-wheel { text-align: right; font-size: 12px; color: #64748b; }
 .tyre-calc-notes { margin-top: 10px; font-size: 11px; color: #94a3b8; font-style: italic; }
+
+/* ============ СТРАНИЦА CALCULATOR УСЛУГ (service.html) ============ */
+.service-card-wide { max-width: 860px; }
+
+.svc-category-block {
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    background: #fafbfc;
+}
+
+.svc-category-title {
+    font-weight: 700;
+    color: #1e5799;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.svc-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+}
+
+.svc-items-grid .service-item { justify-content: flex-start; gap: 8px; }
+.svc-items-grid .service-item b { margin-left: auto; color: #1e5799; font-size: 12px; white-space: nowrap; }
