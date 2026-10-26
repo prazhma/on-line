@@ -1,0 +1,13 @@
+/* ============================================================
+   ПИН-АВТО — СТИЛИ СТРАНИЦ АВТОРИЗАЦИИ / ГОСТЕВОЙ (pages.css)
+   Подключается ВМЕСТЕ с css/main.css только на login.html,
+   index.html, guest.html. Задаёт фон с фотографией и
+   вертикальное центрирование формы входа.
+   ============================================================ */
+body {
+    background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('../img/login_bg.png') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

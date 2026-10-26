@@ -264,10 +264,6 @@ async function sendSelectedCode() {
 
             goToStep('otp');
             startResendTimer();
-
-            if (data.debug_code) {
-                openTestModal(data.debug_code);
-            }
         } else {
             showMessage('channelMsg', data.message || 'Не удалось отправить проверочный код');
         }
@@ -408,17 +404,6 @@ function startResendTimer() {
 
 function resendOtp() {
     sendSelectedCode();
-}
-
-function openTestModal(code) {
-    document.getElementById('testCodeDisplay').textContent = code;
-    document.getElementById('testCodeModal').classList.add('is-open');
-}
-
-function closeTestModal() {
-    document.getElementById('testCodeModal').classList.remove('is-open');
-    const firstBox = document.getElementById('otp_1');
-    if (firstBox) firstBox.focus();
 }
 
 function showMessage(id, text) {

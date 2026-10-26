@@ -154,10 +154,6 @@ async function runScript(scriptName) {
 
         if (result.status === 'success') {
             logContent.textContent += `✅ Выполнение завершено успешно.\n\n${result.output || ''}\n`;
-            // Если перегенерировали config.json, обновляем таблицу филиалов
-            if (scriptName === 'generate_json_config') {
-                loadBranchesList();
-            }
         } else {
             logContent.textContent += `❌ Ошибка: ${result.message || 'Скрипт вернул статус ошибки'}\n`;
             if (result.output) {

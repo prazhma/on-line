@@ -198,6 +198,30 @@ if (!function_exists('pin_mask_email')) {
     }
 }
 
+// Чтение OTP-хранилища с блокировкой файла и миграцией старых записей (код в открытом виде -> хэш)
+if (!function_exists('readOtpStorage')) {
+    function readOtpStorage(string $otpFile): array {
+        $fp = @fopen($otpFile, 'c+');
+        if (!$fp) return [];
+        flock($fp, LOCK_EX);
+        $raw = stream_get_contents($fp);
+        $storage = json_decode((string)$raw, true) ?: [];
+        foreach ($storage as $k => $v) {
+            if (isset($v['code']) && !isset($v['hash'])) {
+                $storage[$k]['hash'] = password_hash(strval($v['code']), PASSWORD_DEFAULT);
+                unset($storage[$k]['code']);
+            }
+        }
+        ftruncate($fp, 0);
+        rewind($fp);
+        fwrite($fp, json_encode($storage, JSON_UNESCAPED_UNICODE));
+        fflush($fp);
+        flock($fp, LOCK_UN);
+        fclose($fp);
+        return $storage;
+    }
+}
+
 try {
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true) ?: $_POST;
@@ -258,11 +282,30 @@ try {
         if (!is_dir($cacheDir)) @mkdir($cacheDir, 0777, true);
         $otpFile = $cacheDir . '/otp_b2b_tokens.json';
 
-        $storage = file_exists($otpFile) ? (json_decode(@file_get_contents($otpFile), true) ?: []) : [];
-        $storage[$inn] = ['code' => $code, 'channel' => $channel, 'inn' => $inn, 'time' => time()];
+        // Rate-limiting: не чаще одного кода в 60 секунд на ИНН
+        $storage = readOtpStorage($otpFile);
+        $lastTime = intval($storage[$inn]['time'] ?? 0);
+        if ($lastTime > 0 && (time() - $lastTime) < 60) {
+            echo json_encode(['status' => 'error', 'message' => 'Код уже отправлен. Повторный запрос возможен через 60 секунд.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Очистка протухших токенов (старше 10 минут)
+        foreach ($storage as $k => $v) {
+            if (time() - intval($v['time'] ?? 0) > 600) unset($storage[$k]);
+        }
+
+        $storage[$inn] = [
+            'hash'    => password_hash($code, PASSWORD_DEFAULT),
+            'channel' => $channel,
+            'inn'     => $inn,
+            'time'    => time(),
+            'tries'   => 0
+        ];
         @file_put_contents($otpFile, json_encode($storage, JSON_UNESCAPED_UNICODE), LOCK_EX);
 
-        pin_b2b_log('OTP_CODE_ISSUED', ['inn' => $inn, 'channel' => $channel, 'code' => $code]);
+        // В лог пишется только факт выдачи кода — сам код не логируется
+        pin_b2b_log('OTP_CODE_ISSUED', ['inn' => $inn, 'channel' => $channel]);
 
         $gateways = pin_b2b_get_gateways();
 
@@ -319,7 +362,7 @@ try {
             }
         }
 
-        echo json_encode(['status' => 'success', 'message' => 'Код отправлен', 'debug_code' => $code], JSON_UNESCAPED_UNICODE);
+        echo json_encode(['status' => 'success', 'message' => 'Код отправлен'], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
@@ -332,9 +375,28 @@ try {
         $code = trim((string)($input['code'] ?? ''));
 
         $otpFile = __DIR__ . '/cache/otp_b2b_tokens.json';
-        $storage = file_exists($otpFile) ? (json_decode(@file_get_contents($otpFile), true) ?: []) : [];
+        $storage = readOtpStorage($otpFile);
 
-        if (!isset($storage[$inn]) || strval($storage[$inn]['code']) !== strval($code)) {
+        $entry = $storage[$inn] ?? null;
+
+        // Токен отсутствует или истёк (10 минут)
+        if (!$entry || (time() - intval($entry['time'] ?? 0)) > 600) {
+            echo json_encode(['status' => 'error', 'message' => 'Код истёк, запросите новый'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Ограничение числа попыток ввода: максимум 5
+        if (intval($entry['tries'] ?? 0) >= 5) {
+            unset($storage[$inn]);
+            @file_put_contents($otpFile, json_encode($storage, JSON_UNESCAPED_UNICODE), LOCK_EX);
+            echo json_encode(['status' => 'error', 'message' => 'Превышено число попыток ввода, запросите новый код'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        $codeOk = !empty($entry['hash']) && password_verify($code, $entry['hash']);
+        if (!$codeOk) {
+            $storage[$inn]['tries'] = intval($entry['tries'] ?? 0) + 1;
+            @file_put_contents($otpFile, json_encode($storage, JSON_UNESCAPED_UNICODE), LOCK_EX);
             echo json_encode(['status' => 'error', 'message' => 'Неверный проверочный код'], JSON_UNESCAPED_UNICODE);
             exit;
         }

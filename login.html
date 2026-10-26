@@ -10,7 +10,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
     
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/pages.css">
     <script src="js/login.js" defer></script>
 </head>
 <body>
@@ -149,22 +150,6 @@
             <p id="redirectText" style="color: #666666; font-size: 14px;">Загружаем личный кабинет...</p>
         </div>
 
-    </div>
-</div>
-
-<!-- Всплывающее окно тестового режима отправки кода -->
-<div id="testCodeModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3>🧪 Тестовый режим (SMS / SMTP)</h3>
-            <span class="modal-close" onclick="closeTestModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <p class="modal-text">Код подтверждения успешно сформирован:</p>
-            <div id="testCodeDisplay" class="test-code-number">----</div>
-            <p class="modal-hint">Используйте этот код для входа на следующем шаге.</p>
-        </div>
-        <button type="button" class="submit-btn" onclick="closeTestModal()">Ввести код</button>
     </div>
 </div>
 

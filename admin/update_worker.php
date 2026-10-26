@@ -3,13 +3,14 @@
  * ПИН-АВТО — Обработчик выполнения служебных скриптов (admin/update_worker.php)
  */
 
+require __DIR__ . '/admin_auth.php';
+admin_require_auth();
+
 header('Content-Type: application/json; charset=utf-8');
 
 // Белый список скриптов
 $allowedScripts = [
-    'generate_json_config' => 'generate_json_config.py',
-    'sync_schedules'       => 'sync_schedules.php',
-    'get_all_posts'        => 'get_all_posts.py'
+    'sync_schedules'       => 'sync_schedules.php'
 ];
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
