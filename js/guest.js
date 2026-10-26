@@ -477,6 +477,7 @@ function renderTabsAndServices(postCode) {
             cb.setAttribute('data-time', s.duration);
 
             leftDiv.appendChild(cb);
+            cb.setAttribute('data-category', catName);
             let nameSpan = document.createElement('span');
             nameSpan.textContent = s.name;
             leftDiv.appendChild(nameSpan);
@@ -506,8 +507,12 @@ function renderTabsAndServices(postCode) {
             updateSummary();
             document.getElementById('selectedTime').value = '';
             checkAndLoadSlots();
+            if (typeof refreshTyreCalculatorVisibility === 'function') refreshTyreCalculatorVisibility();
         });
     });
+
+    // Синхронизация видимости шинного калькулятора с выбранными услугами Шиномонтаж
+    if (typeof refreshTyreCalculatorVisibility === 'function') refreshTyreCalculatorVisibility();
 }
 
 function updateSummary() {
@@ -529,7 +534,17 @@ function updateSummary() {
         if (tTimeEl) tTimeEl.textContent = totalTime + ' мин';
         if (tPriceEl) tPriceEl.textContent = 'от ' + minPrice + ' ₽';
     } else {
-        if (summaryBox) summaryBox.style.display = 'none';
+        // Если выбран только шинный калькулятор — тоже показываем итог
+        const tc = window.__tyreCalcResult;
+        if (tc && tc.total > 0 && summaryBox) {
+            summaryBox.style.display = 'flex';
+            const tTimeEl = document.getElementById('totalTime');
+            const tPriceEl = document.getElementById('totalPrice');
+            if (tTimeEl) tTimeEl.textContent = (totalTime === 0 ? 60 : totalTime) + ' мин';
+            if (tPriceEl) tPriceEl.textContent = 'от ' + tc.total + ' ₽';
+        } else {
+            if (summaryBox) summaryBox.style.display = 'none';
+        }
     }
     return totalTime === 0 ? 60 : totalTime;
 }
