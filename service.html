@@ -89,25 +89,26 @@
             <div class="form-group">
                 <label>Категория услуг *</label>
                 <div id="svcCategoryCards" class="svc-cat-cards">
-                    <label class="svc-cat-card checked"><input type="radio" name="svcCategory" value="tire" checked> 🛞 <b>Шиномонтаж</b><span>Расчёт по размеру колеса</span></label>
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="align"> 🎯 <b>Развал-схождение</b><span>От 1300 ₽</span></label>
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="rim"> ⚙️ <b>Правка дисков</b><span>От 500 ₽</span></label>
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="repair"> 🔧 <b>Ремонт шин и прочее</b><span>Жгут, камера, датчики</span></label>
+                    <label class="svc-cat-card checked"><input type="radio" name="svcCategory" value="tire" checked><b>Шиномонтаж</b><span>Расчёт по размеру колеса</span></label>
+                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="align"><b>Развал-схождение</b><span>От 1300 ₽</span></label>
+                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="rim"><b>Правка дисков</b><span>От 500 ₽</span></label>
+                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="repair"><b>Ремонт шин и прочее</b><span>Жгут, камера, датчики</span></label>
                 </div>
             </div>
 
             <!-- Сюда tyre-calculator.js вставляет блок #tyreCalcBox (при категории «Шиномонтаж») -->
 
-            <!-- ===== ПРОЧИЕ РАБОТЫ: скрыты; открываются кнопкой «Добавить услуги» (табы) ===== -->
+            <!-- ===== ПРОЧИЕ РАБОТЫ: скрыты; открываются кнопкой «Добавить услуги» (табы).
+                   Единственная кнопка — её копия вставляется ПОД калькулятор (см. tyre-calculator.js) ===== -->
             <div class="form-group svc-extra-wrap">
                 <button type="button" class="svc-add-btn" id="svcAddBtn">＋ Добавить услуги</button>
                 <div id="svcExtraBlock" hidden>
                     <!-- Табы категорий -->
                     <div class="svc-tabs" id="svcTabs">
-                        <button type="button" class="svc-tab active" data-tab="align">🎯 Развал-схождение</button>
-                        <button type="button" class="svc-tab" data-tab="rim">⚙️ Правка дисков</button>
-                        <button type="button" class="svc-tab" data-tab="repair">🔧 Ремонт шин</button>
-                        <button type="button" class="svc-tab" data-tab="other">➕ Прочее</button>
+                        <button type="button" class="svc-tab active" data-tab="align">Развал-схождение</button>
+                        <button type="button" class="svc-tab" data-tab="rim">Правка дисков</button>
+                        <button type="button" class="svc-tab" data-tab="repair">Ремонт шин</button>
+                        <button type="button" class="svc-tab" data-tab="other">Прочее</button>
                     </div>
 
                     <div class="svc-tab-panel active" data-panel="align">
@@ -160,11 +161,13 @@
                 </div>
             </div>
 
-            <!-- ===== ИТОГО ===== -->
+            <!-- ===== ИТОГО + СБРОС ===== -->
             <div class="summary-box" id="summaryBox">
                 <div>Итого времени (оценка): <span id="totalTime">0 мин</span></div>
                 <div>Стоимость (оценка): <span id="totalPrice">от 0 ₽</span></div>
             </div>
+
+            <button type="button" class="svc-reset-btn" id="svcResetBtn">Сбросить всё</button>
 
             <!-- ===== ДАТА / ВРЕМЯ ===== -->
             <div class="form-group">

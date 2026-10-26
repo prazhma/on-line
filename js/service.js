@@ -23,6 +23,16 @@ function escapeHtml(str) {
 /* ---------- Появление / исчезновение шинного калькулятора
    (по выбору категории «Шиномонтаж» из блока #svcCategoryCards) ---------- */
 
+// Возврат кнопки «Добавить услуги» на исходное место при удалении калькулятора
+function restoreSvcAddBtnHome() {
+    const btn = document.getElementById('svcAddBtn');
+    if (!btn || !window.__svcAddBtnHome) return;
+    const holder = document.getElementById('svcAddBtnHolder');
+    if (holder && holder.parentNode === window.__svcAddBtnHome) return; // уже дома
+    if (holder) holder.remove();
+    window.__svcAddBtnHome.prepend(btn);
+}
+
 function selectedSvcCategory() {
     const r = document.querySelector('input[name="svcCategory"]:checked');
     return r ? r.value : '';
@@ -43,6 +53,7 @@ function refreshServiceTyreCalculator() {
         });
     } else if (box) {
         box.remove();
+        restoreSvcAddBtnHome();
         window.__tyreCalcResult = null;
         updateServiceSummary();
         checkAndLoadSlots();
@@ -71,6 +82,8 @@ function applyCategoryToExtras(cat) {
     if (!block || !btn) return;
     const map = { align: 'align', rim: 'rim', repair: 'repair' };
     if (map[cat]) {
+        // если калькулятор открыт и кнопка перемещена под него — возвращаем её на место
+        restoreSvcAddBtnHome();
         block.hidden = false;
         btn.classList.remove('suggest');
         btn.textContent = '－ Свернуть услуги';
@@ -89,9 +102,13 @@ async function svcLookupClient(phone) {
     const digits = phone.replace(/\D/g, '');
     const infoBox = document.getElementById('svcClientInfo');
     const manualWrap = document.getElementById('svcCarManualWrap');
+    const manualInput = document.getElementById('serviceCarBrandManual');
     svcClientId = null;
     if (infoBox) infoBox.hidden = true;
+    // Ручной ввод марки показываем только если клиент НЕ найден
+    if (manualWrap) manualWrap.classList.remove('is-hidden');
     if (manualWrap) manualWrap.hidden = false;
+    if (manualInput) manualInput.value = '';
     if (digits.length !== 11) return;
 
     try {
@@ -128,7 +145,7 @@ async function svcLookupClient(phone) {
         const clientNameEl = document.getElementById('svcClientName');
         if (clientNameEl) clientNameEl.textContent = data.client.name ? '· ' + data.client.name : '';
         if (infoBox) infoBox.hidden = false;
-        // при найденном клиенте оставляем только резервный ручной ввод в самой карточке
+        // Клиент найден — поле «Марка авто (необязательно)» СКРЫВАЕМ (выбор авто идёт из карточки клиента)
         if (manualWrap) manualWrap.classList.add('is-hidden');
     } catch (e) {
         console.warn('Поиск клиента недоступен:', e);
@@ -400,6 +417,17 @@ window.handleServiceCalcSubmit = async function (e) {
     // payload для booking_handler.php (формат идентичен guest.js)
     const worksArr = services.map(s => ({ name: s.name, price: s.price, duration: s.duration || 30 }));
 
+    // ===== Результат шинного калькулятора — в комментарий к сделке =====
+    // Формируем строку "Шиномонтаж <размер>, <кол-во> кол.: <детализация> = <итого> ₽"
+    let calcComment = '';
+    if (tc && tc.total > 0) {
+        const stC = tc.state;
+        const sizeStr = stC.width ? `${stC.width}/${stC.profile} R${stC.diameter}` : `R${stC.diameter}`;
+        const vtNames = { passenger: 'легковые', passenger_low: 'легковые LP', crossover: 'кроссовер/внедорожник', light_truck: 'грузик/микроавтобус' };
+        const parts = (tc.details || []).map(x => `${x.name} ${x.pricePerWheel}×${stC.quantity}=${x.total}`).join(', ');
+        calcComment = `Шиномонтаж ${sizeStr}, ${stC.quantity} кол. (${vtNames[stC.vtKey] || stC.vtKey}${stC.runflat ? ', RUN FLAT' : ''}): ${parts} = ${tc.total} ₽`;
+    }
+
     const formData = new FormData();
     formData.append('customer_id', branchId);
     formData.append('post_id', postId);
@@ -411,6 +439,7 @@ window.handleServiceCalcSubmit = async function (e) {
     formData.append('car_plate', '');
     formData.append('duration', durationMins);
     formData.append('services_json', JSON.stringify(worksArr));
+    formData.append('comment', calcComment); // расчёт калькулятора -> в COMMENT сделки (см. booking_handler.php)
     formData.append('is_guest', '1');
 
     const submitBtn = document.getElementById('serviceSubmitBtn');
@@ -473,33 +502,24 @@ document.addEventListener('DOMContentLoaded', function () {
         applyCategoryToExtras(e.target.value);
     });
 
-    // Кнопка «Добавить услуги» — раскрытие/сворачивание скрытого блока работ
-    // (основная кнопка + продублированная под калькулятором)
+    // Кнопка «Добавить услуги» — раскрытие/сворачивание скрытого блока работ.
+    // Экземпляр кнопки ОДИН: когда калькулятор открыт, кнопка физически
+    // перемещена под калькулятор (см. tyre-calculator.js) — обработчик на ней сохраняется.
     const svcAddBtn = document.getElementById('svcAddBtn');
     const svcExtraBlock = document.getElementById('svcExtraBlock');
 
     function toggleExtras() {
         if (!svcAddBtn || !svcExtraBlock) return;
         svcExtraBlock.hidden = !svcExtraBlock.hidden;
-        const label = svcExtraBlock.hidden ? '＋ Добавить услуги' : '－ Свернуть услуги';
         svcAddBtn.classList.remove('suggest');
-        svcAddBtn.textContent = label;
-        const calcBtn = document.getElementById('svcAddBtnCalc');
-        if (calcBtn && !svcExtraBlock.hidden) {
-            // после раскрытия из-под калькулятора — скроллим к табам и синхронизируем подпись
-            calcBtn.textContent = '－ Свернуть услуги';
+        svcAddBtn.textContent = svcExtraBlock.hidden ? '＋ Добавить услуги' : '－ Свернуть услуги';
+        if (!svcExtraBlock.hidden && svcAddBtn.closest('#tyreCalcBox')) {
+            // находимся под калькулятором — скроллим к раскрытым табам
             svcExtraBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        } else if (calcBtn) {
-            calcBtn.textContent = '＋ Добавить услуги';
         }
     }
 
     if (svcAddBtn) svcAddBtn.addEventListener('click', toggleExtras);
-
-    // Делегирование: кнопка внутри калькулятора появляется динамически
-    form.addEventListener('click', function (e) {
-        if (e.target.id === 'svcAddBtnCalc') toggleExtras();
-    });
 
     // Табы прочих услуг
     const svcTabs = document.getElementById('svcTabs');
@@ -544,6 +564,54 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (manualWrap) manualWrap.hidden = false;
                 svcClientId = null;
             }
+        });
+    }
+
+    // ===== Кнопка «Сбросить всё» =====
+    const resetBtn = document.getElementById('svcResetBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+            form.reset(); // снимает чекбоксы услуг, возвращает имя/телефон/марку
+
+            // Категория по умолчанию — Шиномонтаж (основная), карточки подсвечиваем заново
+            const tireRadio = form.querySelector('input[name="svcCategory"][value="tire"]');
+            if (tireRadio) tireRadio.checked = true;
+            document.querySelectorAll('.svc-cat-card').forEach(c =>
+                c.classList.toggle('checked', !!c.querySelector('input:checked')));
+
+            // Удаляем калькулятор и возвращаем кнопку «Добавить услуги» на место
+            const box = document.getElementById('tyreCalcBox');
+            if (box) box.remove();
+            restoreSvcAddBtnHome();
+            window.__tyreCalcResult = null;
+            window.__tcPacketFull = true;
+
+            // Сворачиваем блок прочих услуг, сбрасываем табы на первый
+            const extraBlock = document.getElementById('svcExtraBlock');
+            const addBtn = document.getElementById('svcAddBtn');
+            if (extraBlock) extraBlock.hidden = true;
+            if (addBtn) { addBtn.classList.remove('suggest'); addBtn.textContent = '＋ Добавить услуги'; }
+            switchSvcTab('align');
+
+            // Скрываем данные найденного клиента, возвращаем ручной ввод марки
+            const infoBox = document.getElementById('svcClientInfo');
+            const manualWrap = document.getElementById('svcCarManualWrap');
+            if (infoBox) infoBox.hidden = true;
+            if (manualWrap) { manualWrap.hidden = false; manualWrap.classList.remove('is-hidden'); }
+            svcClientId = null;
+
+            // Сброс выбора даты/времени -> текущая неделя, слоты чистим
+            buildWeekTab(0);
+            document.getElementById('selectedTime').value = '';
+            resetSlotsNotice();
+
+            // Сообщение об ошибке/успехе прячем, кнопку отправки возвращаем
+            const msg = document.getElementById('serviceCalcMsg');
+            if (msg) { msg.className = 'message'; msg.style.display = ''; msg.textContent = ''; }
+            const submitBtn = document.getElementById('serviceSubmitBtn');
+            if (submitBtn) { submitBtn.style.display = ''; submitBtn.disabled = false; submitBtn.textContent = 'Создать заявку на запись'; }
+
+            updateServiceSummary();
         });
     }
 

@@ -8,15 +8,21 @@
 
 let TYRE_PRICES = null;
 
-const TYRE_WIDTHS = ['155','165','175','185','195','205','215','225','235','245','255','265','275','285','295','305','315'];
-const TYRE_PROFILES = ['30','35','40','45','50','55','60','65','70','75','80'];
+const TYRE_WIDTHS = ['145','155','165','175','185','195','205','215','225','235','245','255','265','275','285','295','305','315'];
+const TYRE_PROFILES = ['25','30','35','40','45','50','55','60','65','70','75','80'];
+
+/* Полная таблица типоразмеров шин R12-R24 (справочник каталогов производителей,
+   281 типоразмер / 131 пара ширина-профиль). Источник истины — tyre-prices.json -> sizeMatrix.rows;
+   здесь — резервная копия на случай недоступности JSON. */
+const DEFAULT_SIZE_ROWS = [["130","80",[12]],["135","70",[12,13]],["135","80",[12,13]],["145","70",[12,13,14]],["145","80",[12,13,14]],["155","65",[12,13,14]],["155","70",[12,13,14]],["155","75",[12,13]],["155","80",[12,13,14]],["165","60",[12,13,14]],["165","65",[12,13,14]],["165","70",[12,13,14]],["125","80",[13]],["145","65",[13,14]],["155","55",[13,14]],["155","60",[13,14,15]],["160","70",[13]],["165","55",[13,14]],["165","75",[13]],["165","80",[13,14]],["170","70",[13]],["175","60",[13,14]],["175","65",[13,14,15]],["175","70",[13,14]],["175","75",[13,14]],["175","80",[13,14]],["185","55",[13,14,15]],["185","60",[13,14,15]],["185","65",[13,14,15]],["185","70",[13,14]],["185","75",[13,14,16]],["185","80",[13,14]],["195","60",[13,14,15,16]],["195","70",[13,14]],["205","60",[13,15,16]],["205","70",[13,14,15]],["165","50",[14]],["170","65",[14]],["170","80",[14]],["175","50",[14]],["175","55",[14]],["185","50",[14]],["195","65",[14,15]],["195","80",[14]],["195","50",[15,16]],["195","55",[15,16]],["205","65",[15,16]],["205","75",[15]],["215","65",[15,16,17]],["215","70",[15,16]],["215","75",[15]],["225","70",[15,16]],["225","75",[15,16]],["235","75",[15]],["255","70",[15]],["265","70",[15,16,17]],["195","45",[16]],["205","45",[16]],["205","50",[16,17]],["205","55",[16,17]],["215","55",[16,17,18]],["215","60",[16,17]],["225","55",[16,17,18,19]],["225","60",[16,17,18]],["235","60",[16,17,18]],["235","70",[16]],["245","70",[16,17]],["245","75",[16]],["265","75",[16]],["215","45",[17]],["215","50",[17]],["225","45",[17,18,19]],["225","50",[17,18]],["225","65",[17]],["235","45",[17,18,19,20,21]],["235","50",[17,18,19,20,21]],["235","55",[17,18,19,20]],["235","65",[17,18]],["245","45",[17,18,19,20]],["245","65",[17]],["255","65",[17]],["265","65",[17,18]],["285","70",[17]],["225","40",[18,19]],["235","40",[18,19]],["245","40",[18,19,20,21]],["245","50",[18,19,20]],["245","60",[18]],["255","35",[18,19,20,21,22]],["255","40",[18,19,20,21,22]],["255","55",[18,19,20]],["255","60",[18]],["265","60",[18]],["275","40",[18,19,20,21,22]],["285","60",[18]],["235","35",[19]],["245","35",[19,20,21]],["245","55",[19]],["255","45",[19,20,21]],["255","50",[19,20]],["265","50",[19,20]],["265","55",[19]],["275","35",[19,20,21,22,23]],["275","55",[19,20]],["285","45",[19,20,21,22]],["265","45",[20,21]],["275","45",[20,21,22]],["275","50",[20,21,22]],["275","60",[20]],["285","50",[20]],["305","40",[20,22,23]],["315","35",[20,21,22,24]],["265","35",[21,22]],["265","40",[21,22]],["275","30",[21]],["285","35",[21,22,23]],["285","40",[21,22,23,24]],["295","35",[21,23,24]],["295","40",[21,22]],["315","30",[21,23]],["315","40",[21]],["325","30",[21,23]],["255","30",[22]],["265","30",[22]],["285","30",[22]],["295","25",[22]],["295","30",[22,23]],["305","45",[22]],["325","40",[22]],["325","35",[23]],["305","35",[24]]];
 
 /* ---------- КАСКАД РАЗМЕРОВ ПО МАТРИЦЕ СООТВЕТСТВИЙ (sizeMatrix) ----------
    Ширина -> Профиль -> Радиус (R). Как на shinservice: в списках только
-   реально существующие типоразмеры. Если матрицы нет — fallback на полные списки. */
+   реально существующие типоразмеры. Если матрицы нет — fallback на стандартную. */
 
 function getSizeRows() {
-    return (TYRE_PRICES && TYRE_PRICES.sizeMatrix && TYRE_PRICES.sizeMatrix.rows) ? TYRE_PRICES.sizeMatrix.rows : null;
+    if (TYRE_PRICES && TYRE_PRICES.sizeMatrix && TYRE_PRICES.sizeMatrix.rows) return TYRE_PRICES.sizeMatrix.rows;
+    return DEFAULT_SIZE_ROWS;
 }
 
 function widthsFromMatrix(rows) {
@@ -38,7 +44,8 @@ function fillSelect(sel, values, prefer) {
     sel.innerHTML = values.map(v => `<option value="${v}" ${String(v) === String(prefer) ? 'selected' : ''}>${sel.id === 'tcDiameter' ? 'R' + v : v}</option>`).join('');
 }
 
-/* Перерисовка каскада при смене ширины/профиля; сохраняет валидный выбор */
+/* Перерисовка каскада при смене ширины/профиля; сохраняет валидный выбор.
+   Радиус дополнительно ограничивается тарифной таблицей выбранного типа авто. */
 function renderSizeCascades(initial) {
     const wSel = document.getElementById('tcWidth');
     const pSel = document.getElementById('tcProfile');
@@ -46,24 +53,32 @@ function renderSizeCascades(initial) {
     if (!wSel || !pSel || !dSel) return;
 
     const rows = getSizeRows();
-    if (!rows) {
-        // fallback: без матрицы — полные списки, радиус перерисует calcTyrePrice по типу авто
-        fillSelect(wSel, TYRE_WIDTHS, initial ? '205' : wSel.value);
-        fillSelect(pSel, TYRE_PROFILES, initial ? '55' : pSel.value);
-        return;
+
+    // Радиусы, доступные для выбранного типа авто (по прайсу)
+    let vtAllowed = null;
+    if (TYRE_PRICES && TYRE_PRICES.wheelServices) {
+        const vtKey = document.getElementById('tcVehicleType')?.value || 'passenger';
+        const vt = TYRE_PRICES.wheelServices.vehicleTypes[vtKey];
+        if (vt && vt.diameters) vtAllowed = vt.diameters.map(Number);
     }
 
-    const prevW = wSel.value, prevP = pSel.value, prevD = dSel.value;
-
     const widths = widthsFromMatrix(rows);
+    const prevW = wSel.value;
     fillSelect(wSel, widths, initial ? '205' : (widths.includes(prevW) ? prevW : widths[0]));
 
     const profiles = profilesForWidth(rows, wSel.value);
+    const prevP = pSel.value;
     fillSelect(pSel, profiles, (!initial && profiles.includes(prevP)) ? prevP : (profiles.includes('55') ? '55' : profiles[Math.floor(profiles.length / 2)]));
 
-    const diams = diametersForSize(rows, wSel.value, pSel.value);
+    let diams = diametersForSize(rows, wSel.value, pSel.value).map(Number);
+    if (vtAllowed) {
+        const filtered = diams.filter(x => vtAllowed.includes(x));
+        // если у типа авто нет ни одного радиуса из матрицы — показываем радиусы типа авто
+        diams = filtered.length ? filtered : vtAllowed;
+    }
     if (diams.length) {
-        fillSelect(dSel, diams, (!initial && diams.includes(prevD)) ? prevD : diams[0]);
+        const prevD = dSel.value;
+        fillSelect(dSel, diams, (!initial && diams.includes(Number(prevD))) ? Number(prevD) : diams[0]);
     }
 }
 
@@ -173,11 +188,6 @@ function renderTyreCalculator() {
             <div class="tyre-calc-per-wheel" id="tcPerWheel"></div>
         </div>
 
-        <!-- Кнопка добавления услуг — ПОД калькулятором (по ТЗ) -->
-        <div class="svc-add-under-calc">
-            <button type="button" class="svc-add-btn" id="svcAddBtnCalc">＋ Добавить услуги</button>
-        </div>
-
         <div class="tyre-calc-notes">Стоимость указана без учета расходных материалов.</div>
     `;
 
@@ -187,6 +197,20 @@ function renderTyreCalculator() {
     } else {
         const form = document.getElementById('guestBookingForm');
         if (form) form.appendChild(box);
+    }
+
+    // Кнопка «Добавить услуги» — ПЕРЕМЕЩАЕМ существующую (дубликат не создаём),
+    // ставим её ПОД калькулятор (по ТЗ). При удалении блока возвращаем на место.
+    const svcAddBtn = document.getElementById('svcAddBtn');
+    if (svcAddBtn) {
+        window.__svcAddBtnHome = svcAddBtn.parentNode; // .svc-extra-wrap в разметке
+        box.querySelectorAll('.tyre-calc-notes')[0].insertAdjacentElement('beforebegin', (() => {
+            const holder = document.createElement('div');
+            holder.className = 'svc-add-under-calc';
+            holder.id = 'svcAddBtnHolder';
+            holder.appendChild(svcAddBtn); // переносим единственный экземпляр кнопки
+            return holder;
+        })());
     }
 
     // Селекты ширины/профиля/радиуса — по матрице соответствий (sizeMatrix)
@@ -208,6 +232,11 @@ function renderTyreCalculator() {
         el.addEventListener('change', () => {
             // Каскад размеров: смена ширины/профиля перерисовывает последующие списки
             if (el.id === 'tcWidth' || el.id === 'tcProfile') {
+                renderSizeCascades(false);
+            }
+            // Смена типа авто -> радиусы ограничиваем тарифной таблицей этого типа
+            if (el.id === 'tcVehicleType') {
+                calcTyrePrice();      // пересобирает #tcDiameter по допустимым радиусам
                 renderSizeCascades(false);
             }
             // Автоподбор типа авто по профилю: если легковые + низкий профиль -> passenger_low
@@ -313,15 +342,21 @@ function calcTyrePrice() {
     const vt = TYRE_PRICES.wheelServices.vehicleTypes[st.vtKey];
     if (!vt) return 0;
 
-    // Радиусы: ограничены матрицей соответствий (ширина/профиль) и тарифной таблицей типа авто.
+    // Радиусы: берём из справочника типоразмеров (матрица соответствий),
+    // ограничивая диапазоном диаметров тарифной таблицы выбранного типа авто.
     // При смене типа авто перерисовываем select диаметра, оставляя только валидные радиусы.
     const dSel = document.getElementById('tcDiameter');
     const rows = getSizeRows();
-    let allowed = vt.diameters.map(Number);
+    let allowed;
     if (rows) {
         const matrixDiams = diametersForSize(rows, st.width, st.profile).map(Number);
-        if (matrixDiams.length) allowed = allowed.filter(x => matrixDiams.includes(x));
-        if (!allowed.length) allowed = matrixDiams; // радиуса нет в тарифе типа авто — берём из матрицы
+        // радиусы шире тарифной сетки типа авто всё равно показываем — для них
+        // применится ближайшая доступная колонка тарифа (fallback ниже)
+        allowed = matrixDiams.slice().sort((a, b) => a - b);
+        if (!allowed.length) allowed = matrixDiams.slice().sort((a, b) => a - b);
+        if (!allowed.length) allowed = vt.diameters.map(Number); // размера нет в матрице — fallback на тариф
+    } else {
+        allowed = vt.diameters.map(Number);
     }
     const wanted = allowed.join(',');
     if (dSel.dataset.diams !== wanted) {
@@ -330,6 +365,13 @@ function calcTyrePrice() {
     }
     if (!allowed.includes(Number(st.diameter))) {
         st.diameter = Number(dSel.value) || allowed[0];
+    }
+
+    // Если радиуса нет в тарифе выбранного типа авто (например, легковые R18+ с
+    // высоким профилем) — берём ближайший доступный больший диаметр того же типа.
+    if (!vt.prices.remove[String(st.diameter)]) {
+        const avail = Object.keys(vt.prices.remove).map(Number).sort((a, b) => a - b);
+        st.diameter = avail.find(x => x >= st.diameter) || avail[avail.length - 1];
     }
 
     const d = String(st.diameter);

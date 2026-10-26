@@ -61,6 +61,8 @@ try {
     $car_brand     = trim((string)($_POST['car_brand'] ?? ''));
     $car_plate     = trim((string)($_POST['car_plate'] ?? ''));
     $duration_mins = intval($_POST['duration'] ?? 60);
+    // Дополнительно: комментарий с результатом калькулятора (со страницы service.html)
+    $extra_comment = trim((string)($_POST['comment'] ?? ''));
 
     // Принимаем выбранные услуги
     $services_json = $_POST['services_json'] ?? '[]';
@@ -145,7 +147,7 @@ try {
         "CUSTOMER_ID" => $customer_id,
         "BOARD_ID"    => $board_id,
         "TITLE"       => $client_name . ($car_brand !== '' ? " ({$car_brand})" : ''),
-        "COMMENT"     => "Онлайн-запись: {$branch_name} | Пост: {$post_title} | {$car_info} | Работы: {$client_work_full_text} | Итог: {$total_price} ₽",
+        "COMMENT"     => "Онлайн-запись: {$branch_name} | Пост: {$post_title} | {$car_info} | Работы: {$client_work_full_text} | Итог: {$total_price} ₽" . ($extra_comment !== '' ? " | Расчёт калькулятора: {$extra_comment}" : ""),
         "WORKS"       => $works_payload_arr
     ];
     if (!empty($config['source_id'])) {
