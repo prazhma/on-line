@@ -263,6 +263,8 @@ try {
         exit;
     }
 
+    require_once __DIR__ . '/otp_mode.php';
+
     // =========================================================
     // 2. SEND_CODE
     // =========================================================
@@ -270,6 +272,7 @@ try {
         header('Content-Type: application/json; charset=utf-8');
         $inn     = preg_replace('/\D/', '', (string)($input['inn'] ?? ''));
         $channel = trim((string)($input['channel'] ?? 'sms'));
+        $otpMode = otp_get_mode(); // 'show' — код в ответе (отправка приостановлена), 'send' — штатная отправка
 
         $company = pin_b2b_resolve_company($inn);
         if (!$company) {
@@ -308,6 +311,20 @@ try {
         pin_b2b_log('OTP_CODE_ISSUED', ['inn' => $inn, 'channel' => $channel]);
 
         $gateways = pin_b2b_get_gateways();
+
+        if ($otpMode === 'show') {
+            // Отправка SMS/Email ВРЕМЕННО ПРИОСТАНОВЛЕНА: код не отправляется,
+            // а возвращается в ответе — фронт покажет его в модальном окне.
+            pin_b2b_log('OTP_SHOW_MODE_ISSUED', ['inn' => $inn, 'channel' => $channel]);
+            echo json_encode([
+                'status'    => 'success',
+                'message'   => 'Отправка кодов приостановлена — код показан на экране',
+                'show_code' => true,
+                'code'      => $code,
+                'channel'   => $channel
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
 
         if ($channel === 'sms' && !empty($company['phone'])) {
             $smsCfg = $gateways['sms'] ?? [];

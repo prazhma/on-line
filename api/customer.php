@@ -302,6 +302,8 @@ try {
         exit;
     }
 
+    require_once __DIR__ . '/otp_mode.php';
+
     // =========================================================
     // SEND_CODE
     // =========================================================
@@ -309,6 +311,7 @@ try {
         header('Content-Type: application/json; charset=utf-8');
         $phone   = trim((string)($input['phone'] ?? ''));
         $channel = trim((string)($input['channel'] ?? 'sms'));
+        $otpMode = otp_get_mode(); // 'show' — код в ответе (отправка приостановлена), 'send' — штатная отправка
 
         $cleanKey = preg_replace('/\D/', '', $phone);
         $cacheDir = __DIR__ . '/cache';
@@ -342,6 +345,20 @@ try {
         pin_write_log('B2C', 'OTP_CODE_ISSUED', ['phone' => pin_mask_phone($phone), 'channel' => $channel]);
 
         $gateways = pin_get_gw_cfg();
+
+        if ($otpMode === 'show') {
+            // Отправка SMS/Email ВРЕМЕННО ПРИОСТАНОВЛЕНА: код не отправляется,
+            // а возвращается в ответе — фронт покажет его в модальном окне.
+            pin_write_log('B2C', 'OTP_SHOW_MODE_ISSUED', ['phone' => pin_mask_phone($phone), 'channel' => $channel]);
+            echo json_encode([
+                'status'     => 'success',
+                'message'    => 'Отправка кодов приостановлена — код показан на экране',
+                'show_code'  => true,
+                'code'       => $code,
+                'channel'    => $channel
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
 
         if ($channel === 'sms') {
             $smsCfg = $gateways['sms'] ?? [];
