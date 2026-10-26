@@ -153,5 +153,19 @@
     </div>
 </div>
 
+    <!-- Модалка: показ OTP-кода (отправка SMS/Email приостановлена) -->
+    <div class="modal-overlay" id="codeShowModal">
+        <div class="modal-box" style="max-width: 420px; text-align: center;">
+            <h3 style="margin: 0 0 8px;">Вход в личный кабинет</h3>
+            <p style="color: #666; font-size: 14px; margin: 0 0 16px;">
+                Отправка кодов по SMS и email временно приостановлена.<br>
+                Ваш проверочный код:
+            </p>
+            <div id="codeShowValue" style="font-size: 42px; font-weight: 800; letter-spacing: 12px; padding: 16px 0; color: #111;"></div>
+            <p style="color: #999; font-size: 12px; margin: 0 0 20px;">Код действует 10 минут. Введите его на следующем экране.</p>
+            <button type="button" class="submit-btn" style="width: 100%;" onclick="closeCodeShowModal()">Ввести код</button>
+        </div>
+    </div>
+
 </body>
 </html>

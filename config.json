@@ -267,7 +267,7 @@
                     "START": 600
                 }
             },
-            "booking_enabled": false
+            "booking_enabled": true
         },
         "9": {
             "CUSTOMER_ID": 9,
@@ -330,7 +330,7 @@
                     "START": 600
                 }
             },
-            "booking_enabled": false
+            "booking_enabled": true
         },
         "11": {
             "CUSTOMER_ID": 11,
@@ -384,7 +384,7 @@
                 }
             },
             "EXCLUDE_FROM_PURCHASE_STATS": true,
-            "booking_enabled": false
+            "booking_enabled": true
         },
         "17": {
             "CUSTOMER_ID": 17,

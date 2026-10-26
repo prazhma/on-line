@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор услуг — ПИН-АВТО</title>
+
+    <link rel="icon" type="image/x-icon" href="favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
+
+    <!-- Единый визуальный стиль проекта: общие стили + гостевая форма -->
+    <link rel="stylesheet" href="css.css">
+    <link rel="stylesheet" href="guest.css">
+    <!-- Логика шинного калькулятора (tyre-prices.json, прайс от 01.10.2026) -->
+    <script src="js/tyre-calculator.js" defer></script>
+    <script src="js/service.js" defer></script>
+</head>
+<body>
+
+<div class="guest-page-wrapper">
+    <div class="guest-card service-card-wide">
+
+        <div class="dashed-divider"></div>
+        <div class="brand-header-row" style="margin-bottom: 0;">
+            <img src="favicons/apple-touch-icon.png" alt="ПИН-АВТО" class="brand-logo-img">
+            <span class="brand-title-text">ПИН-АВТО</span>
+        </div>
+        <div class="dashed-divider bottom"></div>
+
+        <h1 class="auth-title">Калькулятор услуг</h1>
+        <p class="auth-subtitle">Выберите работы — стоимость рассчитается автоматически по прайсу шинных центров ПИН-АВТО</p>
+
+        <form id="serviceCalcForm" onsubmit="return handleServiceCalcSubmit(event)">
+
+            <!-- ===== ШАГ 1. КОНТАКТЫ (после ввода телефона подтягиваем данные клиента и авто из STOCRM) ===== -->
+            <div class="svc-step-title">Ваши данные</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="serviceName">Ваше Имя *</label>
+                    <input type="text" id="serviceName" class="auth-input-field" placeholder="Иван" required>
+                </div>
+                <div class="form-group">
+                    <label for="servicePhone">Телефон *</label>
+                    <input type="tel" id="servicePhone" class="auth-input-field" placeholder="+7 (999) 000-00-00" autocomplete="tel" inputmode="numeric" required>
+                </div>
+            </div>
+
+            <!-- Данные найденного клиента (заполняются автоматически после ввода телефона) -->
+            <div id="svcClientInfo" class="svc-client-info" hidden>
+                <div class="svc-client-found"><span class="sci-check">✔</span> Клиент найден в базе ПИН-АВТО<span class="sci-name" id="svcClientName"></span></div>
+                <div class="form-group">
+                    <label for="serviceCarBrand">Автомобиль</label>
+                    <select id="serviceCarBrand" class="auth-input-field">
+                        <option value="">— Другой автомобиль —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="serviceCarBrandManual2">Свой автомобиль (если нет в списке)</label>
+                    <input type="text" id="serviceCarBrandManual2" class="auth-input-field" placeholder="Например: Kia Rio">
+                </div>
+            </div>
+
+            <!-- Ручной ввод марки, если клиент не найден -->
+            <div class="form-group" id="svcCarManualWrap">
+                <label for="serviceCarBrandManual">Марка авто (необязательно)</label>
+                <input type="text" id="serviceCarBrandManual" class="auth-input-field" placeholder="Например: Kia Rio">
+            </div>
+
+            <!-- ===== ШАГ 2. ФИЛИАЛ / ПОСТ (реальное расписание STOCRM) ===== -->
+            <div class="svc-step-title">Филиал и пост</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="branchSelect">Филиал *</label>
+                    <select id="branchSelect" class="auth-input-field">
+                        <option value="">-- Загрузка филиалов... --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="postSelect">Пост обслуживания</label>
+                    <select id="postSelect" class="auth-input-field" disabled>
+                        <option value="">-- Сначала выберите филиал --</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ===== ШАГ 3. КАТЕГОРИЯ РАБОТ (основная — Шиномонтаж) ===== -->
+            <div class="svc-step-title">Выбор работ</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="svcCategorySelect">Основная работа *</label>
+                    <select id="svcCategorySelect" class="auth-input-field">
+                        <option value="tire" selected>Шиномонтаж — расчёт по размеру колеса</option>
+                        <option value="align">Развал-схождение — от 1300 ₽</option>
+                        <option value="rim">Правка дисков — от 500 ₽</option>
+                        <option value="repair">Ремонт шин и прочее — жгут, камера, датчики</option>
+                    </select>
+                </div>
+                <div class="form-group svc-tab-select-group" hidden>
+                    <label for="svcTabSelect">Дополнительные работы</label>
+                    <select id="svcTabSelect" class="auth-input-field">
+                        <option value="align">Развал-схождение</option>
+                        <option value="rim">Правка дисков</option>
+                        <option value="repair">Ремонт шин</option>
+                        <option value="other">Прочие работы</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Сюда tyre-calculator.js вставляет блок #tyreCalcBox (при категории «Шиномонтаж») -->
+
+            <!-- ===== ПРОЧИЕ РАБОТЫ: скрыты; открываются кнопкой «Добавить услуги» (табы).
+                   Единственная кнопка — её копия вставляется ПОД калькулятор (см. tyre-calculator.js) ===== -->
+            <div class="form-group svc-extra-wrap">
+                <button type="button" class="svc-add-btn" id="svcAddBtn">Добавить услуги</button>
+                <div id="svcExtraBlock" hidden>
+                    <!-- Табы категорий (стили — как week-btn в guest.css) -->
+                    <div class="svc-tabs" id="svcTabs">
+                        <button type="button" class="svc-tab active" data-tab="align">Развал-схождение</button>
+                        <button type="button" class="svc-tab" data-tab="rim">Правка дисков</button>
+                        <button type="button" class="svc-tab" data-tab="repair">Ремонт шин</button>
+                        <button type="button" class="svc-tab" data-tab="other">Прочее</button>
+                    </div>
+
+                    <div class="svc-tab-panel active" data-panel="align">
+                        <div class="svc-items-grid">
+                            <label class="service-item"><input type="checkbox" value="Развал-схождение передняя ось" data-price="1900" data-time="60" data-category="Развал-схождение"><span>Передняя ось</span> <b>от 1900 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Развал-схождение две оси" data-price="2500" data-time="90" data-category="Развал-схождение"><span>Две оси</span> <b>от 2500 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Развал-схождение Mercedes/Audi/BMW/Porsche/VW" data-price="3400" data-time="90" data-category="Развал-схождение"><span>Mercedes / Audi / BMW / Porsche / VW</span> <b>от 3400 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Развал-схождение внедорожник" data-price="4200" data-time="120" data-category="Развал-схождение"><span>Внедорожник</span> <b>от 4200 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Развал-схождение микроавтобус" data-price="4200" data-time="120" data-category="Развал-схождение"><span>Микроавтобус</span> <b>от 4200 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Диагностика развала" data-price="1300" data-time="30" data-category="Развал-схождение"><span>Диагностика развала</span> <b>от 1300 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Диагностика развала внедорожник" data-price="1700" data-time="30" data-category="Развал-схождение"><span>Диагностика (внедорожник)</span> <b>от 1700 ₽</b></label>
+                        </div>
+                    </div>
+
+                    <div class="svc-tab-panel" data-panel="rim">
+                                                <div class="svc-items-grid">
+                            <label class="service-item"><input type="checkbox" value="Правка легкосплавного диска 13-15" data-price="1000" data-time="60" data-category="Правка дисков"><span>Легкосплавный 13–15"</span> <b>от 1000 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Правка легкосплавного диска 16+ " data-price="1300" data-time="60" data-category="Правка дисков"><span>Легкосплавный 16" и более</span> <b>от 1300 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Правка стального диска 13-14" data-price="500" data-time="45" data-category="Правка дисков"><span>Стальной 13–14"</span> <b>от 500 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Правка стального диска 15+" data-price="700" data-time="45" data-category="Правка дисков"><span>Стальной 15" и более</span> <b>от 700 ₽</b></label>
+                        </div>
+                    </div>
+
+                    <div class="svc-tab-panel" data-panel="repair">
+                                                <div class="svc-items-grid">
+                            <label class="service-item"><input type="checkbox" value="Ремонт шины жгутом/грибком" data-price="350" data-time="30" data-category="Ремонт"><span>Ремонт жгутом / грибком</span> <b>от 350 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Ремонт камеры" data-price="350" data-time="30" data-category="Ремонт"><span>Ремонт камеры</span> <b>от 350 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Пластырь R-18" data-price="450" data-time="30" data-category="Ремонт"><span>Пластырь R-18</span> <b>от 450 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Пластырь R-20" data-price="550" data-time="30" data-category="Ремонт"><span>Пластырь R-20</span> <b>от 550 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Пластырь R-25" data-price="650" data-time="30" data-category="Ремонт"><span>Пластырь R-25</span> <b>от 650 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Вулканизация" data-price="300" data-time="60" data-category="Ремонт"><span>Вулканизация</span> <b>300–500 ₽</b></label>
+                        </div>
+                    </div>
+
+                    <div class="svc-tab-panel" data-panel="other">
+                                                <div class="svc-items-grid">
+                            <label class="service-item"><input type="checkbox" value="Чистка борта диска" data-price="100" data-time="15" data-category="Прочее"><span>Чистка борта диска (1 борт)</span> <b>100–150 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Установка камеры" data-price="150" data-time="20" data-category="Прочее"><span>Установка камеры</span> <b>150 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Программирование датчика TPMS" data-price="450" data-time="20" data-category="Прочее"><span>Программирование датчика</span> <b>от 450 ₽/шт</b></label>
+                            <label class="service-item"><input type="checkbox" value="Установка датчика давления" data-price="450" data-time="20" data-category="Прочее"><span>Установка датчика давления</span> <b>от 450 ₽/шт</b></label>
+                            <label class="service-item"><input type="checkbox" value="Восстановление деталей крепления колеса" data-price="800" data-time="40" data-category="Прочее"><span>Восстановление креплений колеса</span> <b>от 800 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Герметизация борта диска" data-price="80" data-time="15" data-category="Прочее"><span>Герметизация борта диска (1 борт)</span> <b>80 ₽</b></label>
+                            <label class="service-item"><input type="checkbox" value="Смазка ступицы" data-price="75" data-time="15" data-category="Прочее"><span>Смазка ступицы (шт)</span> <b>75 ₽</b></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ИТОГО + СБРОС ===== -->
+            <div class="summary-box" id="summaryBox">
+                <div>Итого времени (оценка): <span id="totalTime">0 мин</span></div>
+                <div>Стоимость (оценка): <span id="totalPrice">от 0 ₽</span></div>
+            </div>
+
+            <button type="button" class="svc-reset-btn" id="svcResetBtn">Сбросить всё</button>
+
+            <!-- ===== ДАТА / ВРЕМЯ ===== -->
+            <div class="form-group">
+                <label>Дата визита *</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 12px; max-width: 400px;">
+                    <button type="button" class="week-btn active" id="btnWeekCurrent" onclick="switchWeekTab(0)">Эта неделя</button>
+                    <button type="button" class="week-btn" id="btnWeekNext" onclick="switchWeekTab(1)">Следующая неделя</button>
+                </div>
+                <div class="grid-v4" id="grid_v4"></div>
+                <input type="hidden" id="dateSelect">
+            </div>
+
+            <div class="form-group">
+                <label>Свободное время *</label>
+                <div id="slotsContainer" class="slots-grid">
+                    <div class="slots-empty-notice" style="grid-column: 1 / -1;">Выберите филиал, дату и пост обслуживания</div>
+                </div>
+                <input type="hidden" id="selectedTime">
+            </div>
+
+            <button type="submit" class="submit-btn" id="serviceSubmitBtn">Создать заявку на запись</button>
+        </form>
+
+        <div id="serviceCalcMsg" class="message"></div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="guest.html" class="btn-link" style="font-size: 13px;">→ Записаться на выбранное время</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+            <a href="index.html" class="btn-link" style="font-size: 13px;">← На главную</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
