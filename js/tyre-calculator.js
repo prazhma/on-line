@@ -11,6 +11,62 @@ let TYRE_PRICES = null;
 const TYRE_WIDTHS = ['155','165','175','185','195','205','215','225','235','245','255','265','275','285','295','305','315'];
 const TYRE_PROFILES = ['30','35','40','45','50','55','60','65','70','75','80'];
 
+/* ---------- КАСКАД РАЗМЕРОВ ПО МАТРИЦЕ СООТВЕТСТВИЙ (sizeMatrix) ----------
+   Ширина -> Профиль -> Радиус (R). Как на shinservice: в списках только
+   реально существующие типоразмеры. Если матрицы нет — fallback на полные списки. */
+
+function getSizeRows() {
+    return (TYRE_PRICES && TYRE_PRICES.sizeMatrix && TYRE_PRICES.sizeMatrix.rows) ? TYRE_PRICES.sizeMatrix.rows : null;
+}
+
+function widthsFromMatrix(rows) {
+    const set = new Set(rows.map(r => r[0]));
+    return Array.from(set).sort((a, b) => a - b);
+}
+
+function profilesForWidth(rows, width) {
+    const set = new Set(rows.filter(r => r[0] === width).map(r => r[1]));
+    return Array.from(set).sort((a, b) => a - b);
+}
+
+function diametersForSize(rows, width, profile) {
+    const row = rows.find(r => r[0] === width && r[1] === profile);
+    return row ? row[2].slice().sort((a, b) => a - b) : [];
+}
+
+function fillSelect(sel, values, prefer) {
+    sel.innerHTML = values.map(v => `<option value="${v}" ${String(v) === String(prefer) ? 'selected' : ''}>${sel.id === 'tcDiameter' ? 'R' + v : v}</option>`).join('');
+}
+
+/* Перерисовка каскада при смене ширины/профиля; сохраняет валидный выбор */
+function renderSizeCascades(initial) {
+    const wSel = document.getElementById('tcWidth');
+    const pSel = document.getElementById('tcProfile');
+    const dSel = document.getElementById('tcDiameter');
+    if (!wSel || !pSel || !dSel) return;
+
+    const rows = getSizeRows();
+    if (!rows) {
+        // fallback: без матрицы — полные списки, радиус перерисует calcTyrePrice по типу авто
+        fillSelect(wSel, TYRE_WIDTHS, initial ? '205' : wSel.value);
+        fillSelect(pSel, TYRE_PROFILES, initial ? '55' : pSel.value);
+        return;
+    }
+
+    const prevW = wSel.value, prevP = pSel.value, prevD = dSel.value;
+
+    const widths = widthsFromMatrix(rows);
+    fillSelect(wSel, widths, initial ? '205' : (widths.includes(prevW) ? prevW : widths[0]));
+
+    const profiles = profilesForWidth(rows, wSel.value);
+    fillSelect(pSel, profiles, (!initial && profiles.includes(prevP)) ? prevP : (profiles.includes('55') ? '55' : profiles[Math.floor(profiles.length / 2)]));
+
+    const diams = diametersForSize(rows, wSel.value, pSel.value);
+    if (diams.length) {
+        fillSelect(dSel, diams, (!initial && diams.includes(prevD)) ? prevD : diams[0]);
+    }
+}
+
 // Профиль <=50% => низкопрофильная шина (для легковых применяется тариф passenger_low)
 function isLowProfile(profile) {
     const p = parseInt(profile);
@@ -117,6 +173,11 @@ function renderTyreCalculator() {
             <div class="tyre-calc-per-wheel" id="tcPerWheel"></div>
         </div>
 
+        <!-- Кнопка добавления услуг — ПОД калькулятором (по ТЗ) -->
+        <div class="svc-add-under-calc">
+            <button type="button" class="svc-add-btn" id="svcAddBtnCalc">＋ Добавить услуги</button>
+        </div>
+
         <div class="tyre-calc-notes">Стоимость указана без учета расходных материалов.</div>
     `;
 
@@ -128,11 +189,8 @@ function renderTyreCalculator() {
         if (form) form.appendChild(box);
     }
 
-    // Селекты ширины/профиля
-    const wSel = document.getElementById('tcWidth');
-    const pSel = document.getElementById('tcProfile');
-    wSel.innerHTML = TYRE_WIDTHS.map(w => `<option value="${w}" ${w === '205' ? 'selected' : ''}>${w}</option>`).join('');
-    pSel.innerHTML = TYRE_PROFILES.map(p => `<option value="${p}" ${p === '55' ? 'selected' : ''}>${p}</option>`).join('');
+    // Селекты ширины/профиля/радиуса — по матрице соответствий (sizeMatrix)
+    renderSizeCascades(true);
 
     // Чекбоксы операций
     const opsWrap = document.getElementById('tcOps');
@@ -148,6 +206,10 @@ function renderTyreCalculator() {
     // Слушатели
     box.querySelectorAll('select, input').forEach(el => {
         el.addEventListener('change', () => {
+            // Каскад размеров: смена ширины/профиля перерисовывает последующие списки
+            if (el.id === 'tcWidth' || el.id === 'tcProfile') {
+                renderSizeCascades(false);
+            }
             // Автоподбор типа авто по профилю: если легковые + низкий профиль -> passenger_low
             syncVehicleTypeByProfile();
             calcTyrePrice();
@@ -165,6 +227,13 @@ function renderTyreCalculator() {
         if (full) {
             // полный пакет: все 5 обязательных операций включены
             box.querySelectorAll('.tc-op').forEach(cb => { cb.checked = true; });
+        } else {
+            // «По выбору» — это НЕ комплекс: сбрасываем все чекбоксы операций и допы
+            box.querySelectorAll('.tc-op').forEach(cb => { cb.checked = false; });
+            ['tcRunflat', 'tcWash', 'tcNitrogenFill', 'tcUtilization'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = false;
+            });
         }
         calcTyrePrice();
         updateSummary();
@@ -244,16 +313,23 @@ function calcTyrePrice() {
     const vt = TYRE_PRICES.wheelServices.vehicleTypes[st.vtKey];
     if (!vt) return 0;
 
-    // Диаметы зависят от типа авто — перерисуем select диаметра при смене типа
+    // Радиусы: ограничены матрицей соответствий (ширина/профиль) и тарифной таблицей типа авто.
+    // При смене типа авто перерисовываем select диаметра, оставляя только валидные радиусы.
     const dSel = document.getElementById('tcDiameter');
-    const wanted = vt.diameters.join(',');
+    const rows = getSizeRows();
+    let allowed = vt.diameters.map(Number);
+    if (rows) {
+        const matrixDiams = diametersForSize(rows, st.width, st.profile).map(Number);
+        if (matrixDiams.length) allowed = allowed.filter(x => matrixDiams.includes(x));
+        if (!allowed.length) allowed = matrixDiams; // радиуса нет в тарифе типа авто — берём из матрицы
+    }
+    const wanted = allowed.join(',');
     if (dSel.dataset.diams !== wanted) {
         dSel.dataset.diams = wanted;
-        dSel.innerHTML = vt.diameters.map(d => `<option value="${d}" ${d === 15 ? 'selected' : ''}>R${d}</option>`).join('');
+        fillSelect(dSel, allowed, allowed.includes(Number(st.diameter)) ? st.diameter : allowed[0]);
     }
-    if (!vt.diameters.includes(st.diameter)) {
-        st.diameter = vt.diameters.includes(15) ? 15 : vt.diameters[Math.floor(vt.diameters.length / 2)];
-        dSel.value = String(st.diameter);
+    if (!allowed.includes(Number(st.diameter))) {
+        st.diameter = Number(dSel.value) || allowed[0];
     }
 
     const d = String(st.diameter);

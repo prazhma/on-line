@@ -57,22 +57,90 @@ function suggestExtraServices() {
     btn.textContent = '＋ Добавить сопутствующие услуги (развал, правка дисков, ремонт)';
 }
 
-/* Авто-раскрытие блока при выборе нешиномонтажной категории */
+/* Авто-раскрытие блока при выборе нешиномонтажной категории (открываем нужный таб) */
+function switchSvcTab(tabName) {
+    const tabs = document.querySelectorAll('#svcTabs .svc-tab');
+    if (!tabs.length) return;
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+    document.querySelectorAll('.svc-tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tabName));
+}
+
 function applyCategoryToExtras(cat) {
     const block = document.getElementById('svcExtraBlock');
     const btn = document.getElementById('svcAddBtn');
     if (!block || !btn) return;
-    const map = { align: 'Развал-схождение', rim: 'Правка дисков', repair: 'Ремонт' };
+    const map = { align: 'align', rim: 'rim', repair: 'repair' };
     if (map[cat]) {
         block.hidden = false;
         btn.classList.remove('suggest');
         btn.textContent = '－ Свернуть услуги';
-        const title = [...block.querySelectorAll('.svc-category-title')].find(t => t.textContent.trim() === map[cat]);
-        const target = title ? title.closest('.svc-category-block') : null;
-        if (target && typeof target.scrollIntoView === 'function') {
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        switchSvcTab(map[cat]);
+        block.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+}
+
+/* ---------- Определение телефона и поиск клиента в STOCRM
+   (api/customer.php action=check_client, как в гостевой форме) ---------- */
+
+let svcClientId = null;
+let svcClientLookupTimer = null;
+
+async function svcLookupClient(phone) {
+    const digits = phone.replace(/\D/g, '');
+    const infoBox = document.getElementById('svcClientInfo');
+    const manualWrap = document.getElementById('svcCarManualWrap');
+    svcClientId = null;
+    if (infoBox) infoBox.hidden = true;
+    if (manualWrap) manualWrap.hidden = false;
+    if (digits.length !== 11) return;
+
+    try {
+        const res = await fetch('api/customer.php?action=check_client', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone })
+        });
+        const data = await res.json();
+        if (data.status !== 'success' || !data.client) return;
+
+        svcClientId = data.client.id || null;
+
+        // Подставляем имя, если пользователь ещё ничего не ввёл
+        const nameEl = document.getElementById('serviceName');
+        if (nameEl && !nameEl.value.trim() && data.client.name) nameEl.value = data.client.name;
+
+        // Список автомобилей клиента
+        let cars = [];
+        if (svcClientId) {
+            try {
+                const cres = await fetch(`api/cars.php?client_id=${svcClientId}`);
+                const cdata = await cres.json();
+                if (cdata.status === 'success') cars = cdata.cars || [];
+            } catch (e) { /* авто не критично */ }
+        }
+
+        const carSel = document.getElementById('serviceCarBrand');
+        if (carSel) {
+            carSel.innerHTML = '<option value="">— Другой автомобиль —</option>' +
+                cars.map(c => `<option value="${escapeHtml(c.title)}">${escapeHtml(c.title)}${c.plate && c.plate !== '—' ? ' (' + escapeHtml(c.plate) + ')' : ''}</option>`).join('');
+            if (cars.length === 1) carSel.value = cars[0].title;
+        }
+        const clientNameEl = document.getElementById('svcClientName');
+        if (clientNameEl) clientNameEl.textContent = data.client.name ? '· ' + data.client.name : '';
+        if (infoBox) infoBox.hidden = false;
+        // при найденном клиенте оставляем только резервный ручной ввод в самой карточке
+        if (manualWrap) manualWrap.classList.add('is-hidden');
+    } catch (e) {
+        console.warn('Поиск клиента недоступен:', e);
+    }
+}
+
+function getSelectedCarBrand() {
+    const infoBox = document.getElementById('svcClientInfo');
+    const sel = document.getElementById('serviceCarBrand');
+    if (infoBox && !infoBox.hidden && sel && sel.value) return sel.value.trim();
+    const manual = document.getElementById('serviceCarBrandManual');
+    return manual ? manual.value.trim() : '';
 }
 
 /* ---------- Итог страницы ---------- */
@@ -283,7 +351,7 @@ window.handleServiceCalcSubmit = async function (e) {
 
     const name = document.getElementById('serviceName').value.trim();
     const phone = document.getElementById('servicePhone').value.trim();
-    const carBrand = document.getElementById('serviceCarBrand').value.trim();
+    const carBrand = getSelectedCarBrand();
     const branchId = document.getElementById('branchSelect').value;
     const postId = document.getElementById('postSelect').value;
     const date = document.getElementById('dateSelect').value;
@@ -393,6 +461,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     initServiceBookingModule();
 
+    // Шиномонтаж — основная работа по умолчанию: сразу показываем калькулятор
+    refreshServiceTyreCalculator();
+
     // Выбор категории работ: Шиномонтаж -> калькулятор; прочие -> авто-раскрытие блока услуг
     form.addEventListener('change', function (e) {
         if (!e.target.matches('input[name="svcCategory"]')) return;
@@ -403,13 +474,39 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Кнопка «Добавить услуги» — раскрытие/сворачивание скрытого блока работ
+    // (основная кнопка + продублированная под калькулятором)
     const svcAddBtn = document.getElementById('svcAddBtn');
     const svcExtraBlock = document.getElementById('svcExtraBlock');
-    if (svcAddBtn && svcExtraBlock) {
-        svcAddBtn.addEventListener('click', function () {
-            svcExtraBlock.hidden = !svcExtraBlock.hidden;
-            svcAddBtn.classList.remove('suggest');
-            svcAddBtn.textContent = svcExtraBlock.hidden ? '＋ Добавить услуги' : '－ Свернуть услуги';
+
+    function toggleExtras() {
+        if (!svcAddBtn || !svcExtraBlock) return;
+        svcExtraBlock.hidden = !svcExtraBlock.hidden;
+        const label = svcExtraBlock.hidden ? '＋ Добавить услуги' : '－ Свернуть услуги';
+        svcAddBtn.classList.remove('suggest');
+        svcAddBtn.textContent = label;
+        const calcBtn = document.getElementById('svcAddBtnCalc');
+        if (calcBtn && !svcExtraBlock.hidden) {
+            // после раскрытия из-под калькулятора — скроллим к табам и синхронизируем подпись
+            calcBtn.textContent = '－ Свернуть услуги';
+            svcExtraBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else if (calcBtn) {
+            calcBtn.textContent = '＋ Добавить услуги';
+        }
+    }
+
+    if (svcAddBtn) svcAddBtn.addEventListener('click', toggleExtras);
+
+    // Делегирование: кнопка внутри калькулятора появляется динамически
+    form.addEventListener('click', function (e) {
+        if (e.target.id === 'svcAddBtnCalc') toggleExtras();
+    });
+
+    // Табы прочих услуг
+    const svcTabs = document.getElementById('svcTabs');
+    if (svcTabs) {
+        svcTabs.addEventListener('click', function (e) {
+            const t = e.target.closest('.svc-tab');
+            if (t) switchSvcTab(t.dataset.tab);
         });
     }
 
@@ -421,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function () {
         checkAndLoadSlots();
     });
 
-    // Маска телефона — как в guest.js
+    // Маска телефона — как в guest.js + автопоиск клиента после полного номера
     const phoneEl = document.getElementById('servicePhone');
     if (phoneEl) {
         phoneEl.addEventListener('input', function () {
@@ -435,6 +532,18 @@ document.addEventListener('DOMContentLoaded', function () {
             if (v.length >= 7) out += '-' + v.slice(7, 9);
             if (v.length >= 9) out += '-' + v.slice(9, 11);
             this.value = out;
+
+            // Дебаунс: когда набраны все 11 цифр — подтягиваем данные клиента и его авто
+            clearTimeout(svcClientLookupTimer);
+            if (out.replace(/\D/g, '').length === 11) {
+                svcClientLookupTimer = setTimeout(() => svcLookupClient(out), 500);
+            } else {
+                const infoBox = document.getElementById('svcClientInfo');
+                const manualWrap = document.getElementById('svcCarManualWrap');
+                if (infoBox) infoBox.hidden = true;
+                if (manualWrap) manualWrap.hidden = false;
+                svcClientId = null;
+            }
         });
     }
 

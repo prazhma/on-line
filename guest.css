@@ -509,3 +509,26 @@ body {
     margin-left: 8px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
     background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
 }
+
+/* ===== service.html: табы прочих услуг, кнопка под калькулятором, карточка клиента ===== */
+.svc-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.svc-tab {
+    border: 1px solid #cbd5e1; background: #f8fafc; color: #334155;
+    padding: 7px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: .15s;
+}
+.svc-tab:hover { border-color: #1e5799; color: #1e5799; }
+.svc-tab.active { background: #1e5799; border-color: #1e5799; color: #fff; }
+.svc-tab-panel { display: none; }
+.svc-tab-panel.active { display: block; animation: svcTabIn .18s ease-out; }
+@keyframes svcTabIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+.svc-add-under-calc { margin: 12px 0 4px; text-align: center; }
+.svc-add-under-calc .svc-add-btn { width: 100%; }
+
+.svc-client-info {
+    border: 1px solid #bbf7d0; background: #f0fdf4; border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 12px;
+}
+.svc-client-found { font-size: 13px; color: #15803d; font-weight: 600; margin-bottom: 8px; }
+.svc-client-found .sci-check { margin-right: 6px; }
+.svc-client-found .sci-name { margin-left: 6px; color: #166534; font-weight: 400; }

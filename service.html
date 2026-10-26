@@ -33,7 +33,7 @@
 
         <form id="serviceCalcForm" onsubmit="return handleServiceCalcSubmit(event)">
 
-            <!-- ===== ШАГ 1. КОНТАКТЫ ===== -->
+            <!-- ===== ШАГ 1. КОНТАКТЫ (после ввода телефона подтягиваем данные клиента и авто из STOCRM) ===== -->
             <div class="svc-step-title">Ваши данные</div>
             <div class="form-row">
                 <div class="form-group">
@@ -46,9 +46,25 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="serviceCarBrand">Марка авто (необязательно)</label>
-                <input type="text" id="serviceCarBrand" class="auth-input-field" placeholder="Например: Kia Rio">
+            <!-- Данные найденного клиента (заполняются автоматически после ввода телефона) -->
+            <div id="svcClientInfo" class="svc-client-info" hidden>
+                <div class="svc-client-found"><span class="sci-check">✔</span> Клиент найден в базе ПИН-АВТО<span class="sci-name" id="svcClientName"></span></div>
+                <div class="form-group">
+                    <label for="serviceCarBrand">Автомобиль</label>
+                    <select id="serviceCarBrand" class="auth-input-field">
+                        <option value="">— Другой автомобиль —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="serviceCarBrandManual2">Свой автомобиль (если нет в списке)</label>
+                    <input type="text" id="serviceCarBrandManual2" class="auth-input-field" placeholder="Например: Kia Rio">
+                </div>
+            </div>
+
+            <!-- Ручной ввод марки, если клиент не найден -->
+            <div class="form-group" id="svcCarManualWrap">
+                <label for="serviceCarBrandManual">Марка авто (необязательно)</label>
+                <input type="text" id="serviceCarBrandManual" class="auth-input-field" placeholder="Например: Kia Rio">
             </div>
 
             <!-- ===== ШАГ 2. ФИЛИАЛ / ПОСТ (реальное расписание STOCRM) ===== -->
@@ -73,7 +89,7 @@
             <div class="form-group">
                 <label>Категория услуг *</label>
                 <div id="svcCategoryCards" class="svc-cat-cards">
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="tire"> 🛞 <b>Шиномонтаж</b><span>Расчёт по размеру колеса</span></label>
+                    <label class="svc-cat-card checked"><input type="radio" name="svcCategory" value="tire" checked> 🛞 <b>Шиномонтаж</b><span>Расчёт по размеру колеса</span></label>
                     <label class="svc-cat-card"><input type="radio" name="svcCategory" value="align"> 🎯 <b>Развал-схождение</b><span>От 1300 ₽</span></label>
                     <label class="svc-cat-card"><input type="radio" name="svcCategory" value="rim"> ⚙️ <b>Правка дисков</b><span>От 500 ₽</span></label>
                     <label class="svc-cat-card"><input type="radio" name="svcCategory" value="repair"> 🔧 <b>Ремонт шин и прочее</b><span>Жгут, камера, датчики</span></label>
@@ -82,11 +98,19 @@
 
             <!-- Сюда tyre-calculator.js вставляет блок #tyreCalcBox (при категории «Шиномонтаж») -->
 
-            <!-- ===== ПРОЧИЕ РАБОТЫ: скрыты, открываются кнопкой ===== -->
+            <!-- ===== ПРОЧИЕ РАБОТЫ: скрыты; открываются кнопкой «Добавить услуги» (табы) ===== -->
             <div class="form-group svc-extra-wrap">
                 <button type="button" class="svc-add-btn" id="svcAddBtn">＋ Добавить услуги</button>
                 <div id="svcExtraBlock" hidden>
-                    <div class="svc-category-block">
+                    <!-- Табы категорий -->
+                    <div class="svc-tabs" id="svcTabs">
+                        <button type="button" class="svc-tab active" data-tab="align">🎯 Развал-схождение</button>
+                        <button type="button" class="svc-tab" data-tab="rim">⚙️ Правка дисков</button>
+                        <button type="button" class="svc-tab" data-tab="repair">🔧 Ремонт шин</button>
+                        <button type="button" class="svc-tab" data-tab="other">➕ Прочее</button>
+                    </div>
+
+                    <div class="svc-tab-panel active" data-panel="align">
                         <div class="svc-category-title">Развал-схождение</div>
                         <div class="svc-items-grid">
                             <label class="service-item"><input type="checkbox" value="Развал-схождение передняя ось" data-price="1900" data-time="60" data-category="Развал-схождение"><span>Передняя ось</span> <b>от 1900 ₽</b></label>
@@ -98,7 +122,8 @@
                             <label class="service-item"><input type="checkbox" value="Диагностика развала внедорожник" data-price="1700" data-time="30" data-category="Развал-схождение"><span>Диагностика (внедорожник)</span> <b>от 1700 ₽</b></label>
                         </div>
                     </div>
-                    <div class="svc-category-block">
+
+                    <div class="svc-tab-panel" data-panel="rim">
                         <div class="svc-category-title">Правка дисков</div>
                         <div class="svc-items-grid">
                             <label class="service-item"><input type="checkbox" value="Правка легкосплавного диска 13-15" data-price="1000" data-time="60" data-category="Правка дисков"><span>Легкосплавный 13–15"</span> <b>от 1000 ₽</b></label>
@@ -107,8 +132,9 @@
                             <label class="service-item"><input type="checkbox" value="Правка стального диска 15+" data-price="700" data-time="45" data-category="Правка дисков"><span>Стальной 15" и более</span> <b>от 700 ₽</b></label>
                         </div>
                     </div>
-                    <div class="svc-category-block">
-                        <div class="svc-category-title">Ремонт шин и прочие работы</div>
+
+                    <div class="svc-tab-panel" data-panel="repair">
+                        <div class="svc-category-title">Ремонт шин</div>
                         <div class="svc-items-grid">
                             <label class="service-item"><input type="checkbox" value="Ремонт шины жгутом/грибком" data-price="350" data-time="30" data-category="Ремонт"><span>Ремонт жгутом / грибком</span> <b>от 350 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Ремонт камеры" data-price="350" data-time="30" data-category="Ремонт"><span>Ремонт камеры</span> <b>от 350 ₽</b></label>
@@ -116,6 +142,12 @@
                             <label class="service-item"><input type="checkbox" value="Пластырь R-20" data-price="550" data-time="30" data-category="Ремонт"><span>Пластырь R-20</span> <b>от 550 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Пластырь R-25" data-price="650" data-time="30" data-category="Ремонт"><span>Пластырь R-25</span> <b>от 650 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Вулканизация" data-price="300" data-time="60" data-category="Ремонт"><span>Вулканизация</span> <b>300–500 ₽</b></label>
+                        </div>
+                    </div>
+
+                    <div class="svc-tab-panel" data-panel="other">
+                        <div class="svc-category-title">Прочие работы</div>
+                        <div class="svc-items-grid">
                             <label class="service-item"><input type="checkbox" value="Чистка борта диска" data-price="100" data-time="15" data-category="Прочее"><span>Чистка борта диска (1 борт)</span> <b>100–150 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Установка камеры" data-price="150" data-time="20" data-category="Прочее"><span>Установка камеры</span> <b>150 ₽</b></label>
                             <label class="service-item"><input type="checkbox" value="Программирование датчика TPMS" data-price="450" data-time="20" data-category="Прочее"><span>Программирование датчика</span> <b>от 450 ₽/шт</b></label>
