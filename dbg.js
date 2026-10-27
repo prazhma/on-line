@@ -1,24 +1,28 @@
 const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch();
-  const page = await (await browser.newContext()).newPage();
+  const page = await (await browser.newContext({ viewport: { width: 1280, height: 1400 } })).newPage();
+  page.on('pageerror', e => console.log('PAGEERROR:', String(e)));
+  page.on('console', m => { if (m.type()==='error') console.log('CONSOLE-ERR:', m.text()); });
   await page.goto('http://localhost:8099/service.html');
   await page.waitForTimeout(1500);
-  await page.selectOption('#svcCategorySelect', 'align');
+  await page.fill('#serviceName', 'Иван');
+  await page.fill('#servicePhone', '+7 (999) 000-11-22');
+  await page.waitForTimeout(1200);
+  await page.selectOption('#branchSelect', { index: 1 });
+  await page.waitForTimeout(500);
+  await page.click('#grid_v4 .card-v4');
+  await page.waitForTimeout(800);
+  console.log('date=', await page.inputValue('#dateSelect'));
+  console.log('post disabled=', await page.evaluate(() => document.getElementById('postSelect').disabled));
+  console.log('slots html=', (await page.textContent('#slotsContainer')).trim().slice(0,80));
+  const btns = await page.locator('#slotsContainer .slot-btn').count();
+  console.log('slot buttons=', btns);
+  if (btns) await page.locator('#slotsContainer .slot-btn:not(.disabled)').first().click();
+  await page.waitForTimeout(300);
+  console.log('selectedTime=', await page.inputValue('#selectedTime'));
+  await page.click('#serviceSubmitBtn');
   await page.waitForTimeout(1500);
-  const info = await page.evaluate(() => {
-    const block = document.getElementById('svcExtraBlock');
-    const panel = document.querySelector('.svc-tab-panel[data-panel="align"]');
-    const cb = panel.querySelector('input[type=checkbox]');
-    const cs = getComputedStyle(block), ps = getComputedStyle(panel), cbs = getComputedStyle(cb);
-    return {
-      hiddenAttr: block.hidden,
-      blockDisplay: cs.display, blockVisibility: cs.visibility, blockOpacity: cs.opacity,
-      panelDisplay: ps.display,
-      cbDisplay: cbs.display, cbSize: cb.getBoundingClientRect(),
-      labelHTML: panel.querySelector('.service-item').outerHTML.slice(0,200)
-    };
-  });
-  console.log(JSON.stringify(info, null, 1));
+  console.log('msg=', (await page.textContent('#serviceCalcMsg')).trim().slice(0,200));
   await browser.close();
 })();

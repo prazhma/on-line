@@ -476,15 +476,7 @@ body {
 /* ===== service.html: пошаговая топология (шаги, категории, кнопка «Добавить услуги») ===== */
 .svc-step-title { font-size: 15px; font-weight: 700; color: #1e293b; margin: 18px 0 10px; }
 .svc-cat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-.svc-cat-card {
-    display: flex; flex-direction: column; gap: 6px; cursor: pointer;
-    border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 12px; transition: all .15s ease; background: #fff;
-}
-.svc-cat-card:hover { border-color: #1e5799; }
-.svc-cat-card input { display: none; }
-.svc-cat-card b { font-size: 14px; color: #1e293b; line-height: 1.3; }
-.svc-cat-card span { font-size: 11.5px; color: #64748b; line-height: 1.3; }
-.svc-cat-card.checked { border-color: #e30613; background: #fef2f2; box-shadow: 0 0 0 2px rgba(227,6,19,.12); }
+/* Карточки категорий удалены из разметки (шиномонтаж — основная работа по умолчанию) */
 .svc-add-btn {
     width: 100%; padding: 12px; border: 2px dashed #cbd5e1; border-radius: 10px; background: #f8fafc;
     color: #475569; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .15s ease;
@@ -522,9 +514,12 @@ body {
 .svc-tab-panel.active { display: block; animation: svcTabIn .18s ease-out; }
 @keyframes svcTabIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 
-/* Кнопка добавления услуг под калькулятором (единственный экземпляр — переносится сюда из разметки) */
-.svc-add-under-calc { margin: 12px 0 4px; text-align: center; }
+/* Кнопка добавления услуг ПОД калькулятором (единственный экземпляр — переносится сюда из разметки) */
+.svc-add-under-calc { margin: 14px 0 4px; text-align: center; }
 .svc-add-under-calc .svc-add-btn { width: 100%; }
+
+/* Табличная часть блока «Добавить услуги» внутри калькулятора — с отступом сверху */
+#tyreCalcBox .svc-extra-wrap { margin-top: 6px; }
 
 /* Кнопка «Сбросить всё» — второстепенная, под блоком ИТОГО */
 .svc-reset-btn {

@@ -84,22 +84,16 @@
                 </div>
             </div>
 
-            <!-- ===== ШАГ 3. КАТЕГОРИЯ РАБОТ ===== -->
+            <!-- ===== ШАГ 3. ВЫБОР РАБОТ =====
+                   Калькулятор шиномонтажа — основная работа, показывается по умолчанию
+                   (блок #tyreCalcBox вставляет сюда tyre-calculator.js).
+                   Под ним — кнопка «Добавить услуги» и табы прочих работ. ===== -->
             <div class="svc-step-title">Выбор работ</div>
-            <div class="form-group">
-                <label>Категория услуг *</label>
-                <div id="svcCategoryCards" class="svc-cat-cards">
-                    <label class="svc-cat-card checked"><input type="radio" name="svcCategory" value="tire" checked><b>Шиномонтаж</b><span>Расчёт по размеру колеса</span></label>
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="align"><b>Развал-схождение</b><span>От 1300 ₽</span></label>
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="rim"><b>Правка дисков</b><span>От 500 ₽</span></label>
-                    <label class="svc-cat-card"><input type="radio" name="svcCategory" value="repair"><b>Ремонт шин и прочее</b><span>Жгут, камера, датчики</span></label>
-                </div>
-            </div>
 
-            <!-- Сюда tyre-calculator.js вставляет блок #tyreCalcBox (при категории «Шиномонтаж») -->
+            <div id="svcTyreCalcSlot"></div>
 
             <!-- ===== ПРОЧИЕ РАБОТЫ: скрыты; открываются кнопкой «Добавить услуги» (табы).
-                   Единственная кнопка — её копия вставляется ПОД калькулятор (см. tyre-calculator.js) ===== -->
+                   Кнопка физически переносится под калькулятор (см. tyre-calculator.js) ===== -->
             <div class="form-group svc-extra-wrap">
                 <button type="button" class="svc-add-btn" id="svcAddBtn">＋ Добавить услуги</button>
                 <div id="svcExtraBlock" hidden>

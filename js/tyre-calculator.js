@@ -191,8 +191,16 @@ function renderTyreCalculator() {
         <div class="tyre-calc-notes">Стоимость указана без учета расходных материалов.</div>
     `;
 
+    // Вставляем калькулятор в слот «Выбор работ» (service.html), сразу под ним —
+    // кнопка «Добавить услуги» с табами прочих работ. Калькулятор — основная работа,
+    // показывается по умолчанию.
     const summaryBox = document.getElementById('summaryBox');
-    if (summaryBox && summaryBox.parentNode) {
+    const slot = document.getElementById('svcTyreCalcSlot');
+    const extraWrap = document.querySelector('.svc-extra-wrap');
+    if (slot) {
+        slot.appendChild(box);
+        if (extraWrap) slot.appendChild(extraWrap); // переносим единственный экземпляр блока
+    } else if (summaryBox && summaryBox.parentNode) {
         summaryBox.parentNode.insertBefore(box, summaryBox);
     } else {
         const form = document.getElementById('guestBookingForm');
@@ -200,17 +208,15 @@ function renderTyreCalculator() {
     }
 
     // Кнопка «Добавить услуги» — ПЕРЕМЕЩАЕМ существующую (дубликат не создаём),
-    // ставим её ПОД калькулятор (по ТЗ). При удалении блока возвращаем на место.
+    // ставим её ПОД калькулятор (по ТЗ): holder-контейнер внутри блока #tyreCalcBox.
     const svcAddBtn = document.getElementById('svcAddBtn');
     if (svcAddBtn) {
-        window.__svcAddBtnHome = svcAddBtn.parentNode; // .svc-extra-wrap в разметке
-        box.querySelectorAll('.tyre-calc-notes')[0].insertAdjacentElement('beforebegin', (() => {
-            const holder = document.createElement('div');
-            holder.className = 'svc-add-under-calc';
-            holder.id = 'svcAddBtnHolder';
-            holder.appendChild(svcAddBtn); // переносим единственный экземпляр кнопки
-            return holder;
-        })());
+        window.__svcAddBtnHome = extraWrap || svcAddBtn.parentNode; // .svc-extra-wrap в разметке
+        const holder = document.createElement('div');
+        holder.className = 'svc-add-under-calc';
+        holder.id = 'svcAddBtnHolder';
+        box.appendChild(holder);
+        holder.appendChild(svcAddBtn); // переносим единственный экземпляр кнопки
     }
 
     // Селекты ширины/профиля/радиуса — по матрице соответствий (sizeMatrix)
