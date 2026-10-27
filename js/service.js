@@ -156,8 +156,34 @@ function updateServiceSummary() {
     if (timeEl) timeEl.textContent = time + ' мин';
     if (priceEl) priceEl.textContent = 'от ' + total + ' ₽';
 
+    renderCalcExtrasList();
+
     return { time, total };
 }
+
+/* ---------- Отмеченные доп. работы — отдельным списком ПОД разбивкой
+   калькулятора (в сам «Итого шиномонтаж» они не входят) ---------- */
+
+function renderCalcExtrasList() {
+    const list = document.getElementById('tcExtrasList');
+    if (!list) return;
+    const checked = Array.from(document.querySelectorAll('#serviceCalcForm .service-item input:checked'));
+    if (!checked.length) {
+        list.hidden = true;
+        list.innerHTML = '';
+        return;
+    }
+    let extrasSum = 0;
+    list.innerHTML = '<div class="tc-bd-extras-title">Добавленные услуги:</div>' +
+        checked.map(cb => {
+            const p = parseInt(cb.dataset.price || 0);
+            extrasSum += p;
+            return `<div class="tc-bd-row tc-bd-extra"><span>${cb.value}</span><span><b>${p} ₽</b></span></div>`;
+        }).join('') +
+        `<div class="tc-bd-row tc-bd-extra-sum"><span>Итого доп. работы:</span><span><b>${extrasSum} ₽</b></span></div>`;
+    list.hidden = false;
+}
+window.renderCalcExtrasList = renderCalcExtrasList;
 
 /* ---------- Колбэк tyre-calculator.js ---------- */
 
@@ -415,6 +441,13 @@ window.handleServiceCalcSubmit = async function (e) {
         const parts = (tc.details || []).map(x => `${x.name} ${x.pricePerWheel}×${stC.quantity}=${x.total}`).join(', ');
         calcComment = `Шиномонтаж ${sizeStr}, ${stC.quantity} кол. (${vtNames[stC.vtKey] || stC.vtKey}${stC.runflat ? ', RUN FLAT' : ''}): ${parts} = ${tc.total} ₽`;
     }
+    // Отмеченные доп. работы и общий итог — тоже в комментарий
+    const extrasForComment = services.filter(s => s.category !== 'Шиномонтаж');
+    if (extrasForComment.length) {
+        const exParts = extrasForComment.map(s => `${s.name} ${s.price} ₽`).join(', ');
+        calcComment += (calcComment ? ' | Доп. работы: ' : 'Доп. работы: ') + exParts;
+    }
+    if (calcComment) calcComment += ` | Общий итог: ${summary.total} ₽`;
 
     const formData = new FormData();
     formData.append('customer_id', branchId);

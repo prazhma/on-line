@@ -538,3 +538,41 @@ body {
 .svc-client-found .sci-name { margin-left: 6px; color: #166534; font-weight: 400; }
 /* Поле ручного ввода марки скрыто, когда клиент найден в базе */
 #svcCarManualWrap.is-hidden { display: none; }
+
+/* ===== Slider-переключатель калькулятора (tcSlider) ===== */
+.tyre-calc-header { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+.tc-slider { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; flex: none; }
+.tc-slider input { position: absolute; opacity: 0; width: 0; height: 0; }
+.tc-slider-track {
+    width: 44px; height: 24px; border-radius: 12px; background: #cbd5e1;
+    transition: background .18s ease; flex: none;
+}
+.tc-slider-thumb {
+    display: block; width: 18px; height: 18px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.25); margin: 3px 0 0 3px; transition: transform .18s ease;
+}
+.tc-slider input:checked + .tc-slider-track { background: #16a34a; }
+.tc-slider input:checked + .tc-slider-track .tc-slider-thumb { transform: translateX(20px); }
+.tc-slider-text { font-size: 13px; font-weight: 700; color: #334155; }
+.tyre-calc-box.is-on .tc-slider-text { color: #16a34a; }
+
+/* Подсказка при выключенном калькуляторе */
+.tyre-calc-off-note {
+    font-size: 13px; color: #64748b; background: #f1f5f9;
+    border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px 12px;
+}
+
+/* Доп. работы внутри разбивки калькулятора */
+.tc-bd-extras { margin-top: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0; }
+.tc-bd-extras-title { font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+.tc-bd-extra span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.tc-bd-extra-sum { border-bottom: none !important; font-weight: 600; color: #1e5799; }
+
+/* Карточки операций: текст не должен выходить за пределы — колонка тянется по содержимому */
+.tyre-calc-ops { grid-template-columns: repeat(auto-fit, minmax(max-content, 1fr)); }
+.tyre-calc-op { min-width: 0; }
+.tyre-calc-op > span { min-width: 0; overflow-wrap: anywhere; }
+.tyre-calc-op b { flex: none; max-width: none; }
+@media (max-width: 480px) {
+    .tyre-calc-ops { grid-template-columns: 1fr; }
+}

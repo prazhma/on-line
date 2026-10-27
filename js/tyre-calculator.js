@@ -111,10 +111,19 @@ function renderTyreCalculator() {
     box.className = 'tyre-calc-box';
     box.innerHTML = `
         <div class="tyre-calc-header">
-            <span class="tyre-calc-title">🛞 Калькулятор шиномонтажа</span>
-            <span class="tyre-calc-subtitle">Прайс шинных центров ПИН-АВТО от 01.10.2026</span>
+            <div>
+                <span class="tyre-calc-title">Калькулятор шиномонтажа</span>
+                <span class="tyre-calc-subtitle">Прайс шинных центров ПИН-АВТО от 01.10.2026</span>
+            </div>
+            <!-- Slider-переключатель: калькулятор открыт только когда включён -->
+            <label class="tc-slider" title="Показать / скрыть расчёт шиномонтажа">
+                <input type="checkbox" id="tcSlider" aria-label="Шиномонтаж — калькулятор">
+                <span class="tc-slider-track"><span class="tc-slider-thumb"></span></span>
+                <span class="tc-slider-text">Шиномонтаж</span>
+            </label>
         </div>
 
+        <div class="tyre-calc-body" id="tcBody" hidden>
         <div class="tyre-calc-grid">
             <div class="tyre-calc-field">
                 <label>Тип автомобиля</label>
@@ -181,14 +190,20 @@ function renderTyreCalculator() {
 
         <div class="tyre-calc-result">
             <div class="tyre-calc-breakdown" id="tcBreakdown"></div>
+            <!-- Отмеченные доп. работы (табы «Добавить услуги») — тоже входят в список расчёта -->
+            <div class="tc-bd-extras" id="tcExtrasList" hidden></div>
             <div class="tyre-calc-total-row">
                 <span>Итого шиномонтаж:</span>
-                <span class="tyre-calc-total" id="tcTotal">0 ₽</span>
+                <span class="tyre-calc-total" id="tcTotal">—</span>
             </div>
             <div class="tyre-calc-per-wheel" id="tcPerWheel"></div>
         </div>
 
         <div class="tyre-calc-notes">Стоимость указана без учета расходных материалов.</div>
+        </div><!-- /#tcBody -->
+
+        <!-- Сообщение при выключенном калькуляторе (по умолчанию) -->
+        <div class="tyre-calc-off-note" id="tcOffNote">Включите переключатель «Шиномонтаж», чтобы рассчитать стоимость по размеру колеса.</div>
     `;
 
     // Вставляем калькулятор в слот «Выбор работ» (service.html), сразу под ним —
@@ -236,6 +251,7 @@ function renderTyreCalculator() {
     // Слушатели
     box.querySelectorAll('select, input').forEach(el => {
         el.addEventListener('change', () => {
+            if (el.id === 'tcSlider') return; // обрабатывается отдельно ниже
             // Каскад размеров: смена ширины/профиля перерисовывает последующие списки
             if (el.id === 'tcWidth' || el.id === 'tcProfile') {
                 renderSizeCascades(false);
@@ -247,10 +263,39 @@ function renderTyreCalculator() {
             }
             // Автоподбор типа авто по профилю: если легковые + низкий профиль -> passenger_low
             syncVehicleTypeByProfile();
+            if (!window.__tcCalcOn) return; // калькулятор закрыт — не считаем
             calcTyrePrice();
             updateSummary();
         });
     });
+
+    // Slider-переключатель калькулятора: по умолчанию ВЫКЛ — расчёта нет,
+    // показывается подсказка «выберите…». При включении открывается блок расчёта.
+    const tcSlider = document.getElementById('tcSlider');
+    const tcBody = document.getElementById('tcBody');
+    const tcOffNote = document.getElementById('tcOffNote');
+    function applySliderState() {
+        const on = tcSlider.checked;
+        window.__tcCalcOn = on;
+        box.classList.toggle('is-on', on);
+        tcBody.hidden = !on;
+        if (tcOffNote) tcOffNote.style.display = on ? 'none' : 'block';
+        if (!on) {
+            // выключен — сбрасываем результат и итог страницы
+            window.__tyreCalcResult = null;
+            clearCalcDisplay();
+        } else {
+            calcTyrePrice();
+        }
+        updateSummary();
+    }
+    if (tcSlider) {
+        tcSlider.addEventListener('change', applySliderState);
+        // Страховка: если другой код сменит checked программно (без события change),
+        // состояние слайдера всё равно применится.
+        new MutationObserver(() => applySliderState())
+            .observe(tcSlider, { attributes: true, attributeFilter: ['checked'] });
+    }
 
     // Переключатель «Полный пакет / По выбору» (как packetType std/prm на shinservice)
     const packetFullBtn = document.getElementById('tcPacketFull');
@@ -270,7 +315,7 @@ function renderTyreCalculator() {
                 if (el) el.checked = false;
             });
         }
-        calcTyrePrice();
+        if (window.__tcCalcOn) calcTyrePrice();
         updateSummary();
     }
     packetFullBtn.addEventListener('click', () => setPacketMode(true));
@@ -291,7 +336,19 @@ function renderTyreCalculator() {
     }
 
     syncVehicleTypeByProfile();
-    calcTyrePrice();
+    // По умолчанию калькулятор ЗАКРЫТ (slider выключен): расчёта нет, показываем подсказку.
+    applySliderState();
+}
+
+/* Очистка полей результата (когда калькулятор выключен) */
+function clearCalcDisplay() {
+    const bd = document.getElementById('tcBreakdown');
+    if (bd) bd.innerHTML = '';
+    const total = document.getElementById('tcTotal');
+    if (total) total.textContent = '—';
+    const pw = document.getElementById('tcPerWheel');
+    if (pw) pw.textContent = '';
+    document.querySelectorAll('.tc-op-price').forEach(el => el.textContent = '');
 }
 
 function syncVehicleTypeByProfile() {
@@ -424,7 +481,11 @@ function calcTyrePrice() {
         `<div class="tc-bd-row"><span>${x.name} × ${st.quantity}</span><span>${x.pricePerWheel} ₽ × ${st.quantity} = <b>${x.total} ₽</b></span></div>`
     ).join('') || '<div class="tc-bd-row"><span>Выберите хотя бы одну операцию</span><span></span></div>';
 
-    document.getElementById('tcTotal').textContent = total + ' ₽';
+    // Отмеченные доп. работы (табы «Добавить услуги») — показываем в этом же списке расчёта,
+    // но ИТОГО шиномонтажа остаётся ценой только комплекса по колесу.
+    if (typeof window.renderCalcExtrasList === 'function') window.renderCalcExtrasList();
+
+    document.getElementById('tcTotal').textContent = total > 0 ? total + ' ₽' : '—';
     document.getElementById('tcPerWheel').textContent = total > 0 ? `(${perWheel} ₽ за 1 колесо)` : '';
 
     // Превью размера колеса + бейдж низкопрофильной шины
@@ -462,8 +523,10 @@ function refreshTyreCalculatorVisibility() {
     }
 }
 
-// Переопределяем updateSummary из guest.js — добавляем итог калькулятора
-(function () {
+// Интеграция итога калькулятора с гостевой формой (guest.html):
+// патчим только на странице гостя — на service.html свою логику имеет
+// js/service.js (updateServiceSummary), иначе цена удваивается.
+if (!document.getElementById('serviceCalcForm')) {
     const origUpdateSummary = window.updateSummary;
     window.updateSummary = function () {
         const time = typeof origUpdateSummary === 'function' ? origUpdateSummary() : 60;
@@ -476,7 +539,7 @@ function refreshTyreCalculatorVisibility() {
         }
         return time;
     };
-})();
+}
 
 // Добавляем позицию шиномонтажа в payload при отправке формы.
 // guest.js объявляет submit как window.handleGuestBookingSubmit (присваивание),
