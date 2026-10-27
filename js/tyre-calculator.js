@@ -73,8 +73,9 @@ function renderSizeCascades(initial) {
     let diams = diametersForSize(rows, wSel.value, pSel.value).map(Number);
     if (vtAllowed) {
         const filtered = diams.filter(x => vtAllowed.includes(x));
-        // если у типа авто нет ни одного радиуса из матрицы — показываем радиусы типа авто
-        diams = filtered.length ? filtered : vtAllowed;
+        // если у типа авто нет ни одного радиуса из матрицы — показываем радиусы типа авто;
+        // иначе пустой список (селект не трогаем)
+        diams = filtered.length ? filtered : (diams.length ? [] : vtAllowed);
     }
     if (diams.length) {
         const prevD = dSel.value;
@@ -342,19 +343,27 @@ function calcTyrePrice() {
     const vt = TYRE_PRICES.wheelServices.vehicleTypes[st.vtKey];
     if (!vt) return 0;
 
-    // Радиусы: берём из справочника типоразмеров (матрица соответствий),
-    // ограничивая диапазоном диаметров тарифной таблицы выбранного типа авто.
-    // При смене типа авто перерисовываем select диаметра, оставляя только валидные радиусы.
+    // Радиусы: берём из справочника типоразмеров (матрица соответствий)
+    // и ограничиваем диапазоном диаметров тарифной таблицы выбранного типа авто.
+    // Никаких «подмен» радиуса при расчёте: если пара ширина/профиль не имеет
+    // валидного радиуса для типа авто — показываем только те радиусы, что есть
+    // в матрице И в тарифе; пустое пересечение = нет подходящего размера.
     const dSel = document.getElementById('tcDiameter');
     const rows = getSizeRows();
     let allowed;
     if (rows) {
-        const matrixDiams = diametersForSize(rows, st.width, st.profile).map(Number);
-        // радиусы шире тарифной сетки типа авто всё равно показываем — для них
-        // применится ближайшая доступная колонка тарифа (fallback ниже)
-        allowed = matrixDiams.slice().sort((a, b) => a - b);
-        if (!allowed.length) allowed = matrixDiams.slice().sort((a, b) => a - b);
-        if (!allowed.length) allowed = vt.diameters.map(Number); // размера нет в матрице — fallback на тариф
+        const matrixDiams = diametersForSize(rows, st.width, st.profile).map(Number).sort((a, b) => a - b);
+        const vtAllowed = vt.diameters.map(Number);
+        const filtered = matrixDiams.filter(x => vtAllowed.includes(x));
+        if (filtered.length) {
+            allowed = filtered;
+        } else if (matrixDiams.length) {
+            // размер существует, но радиусов из тарифа нет (например легковые 195/70 R13/R14/R15 — все валидны,
+            // а вот passenger LP без совпадений) — оставляем матричные радиусы, расчёт возьмёт ближайшую колонку тарифа
+            allowed = matrixDiams;
+        } else {
+            allowed = vtAllowed; // пары нет в матрице — fallback на тариф
+        }
     } else {
         allowed = vt.diameters.map(Number);
     }

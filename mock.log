@@ -1,26 +1,201 @@
-node:events:502
-      throw er; // Unhandled 'error' event
-      ^
+mock up on 8099
+BOOKING RECEIVED: ------WebKitFormBoundaryFE0iSL7LIhv3R99i
+Content-Disposition: form-data; name="customer_id"
 
-Error: listen EADDRINUSE: address already in use :::8099
-    at Server.setupListenHandle [as _listen2] (node:net:1908:16)
-    at listenInCluster (node:net:1965:12)
-    at Server.listen (node:net:2067:7)
-    at Object.<anonymous> (/workspace/mock_server.js:38:4)
-    at Module._compile (node:internal/modules/cjs/loader:1521:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
-    at Module.load (node:internal/modules/cjs/loader:1266:32)
-    at Module._load (node:internal/modules/cjs/loader:1091:12)
-    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
-    at node:internal/main/run_main_module:28:49
-Emitted 'error' event on Server instance at:
-    at emitErrorNT (node:net:1944:8)
-    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
-  code: 'EADDRINUSE',
-  errno: -98,
-  syscall: 'listen',
-  address: '::',
-  port: 8099
-}
+1
+------WebKitFormBoundaryFE0iSL7LIhv3R99i
+Content-Disposition: form-data; name="post_id"
 
-Node.js v20.20.2
+13
+------WebKitFormBoundaryFE0iSL7LIhv3R99i
+Content-Disposition: form-data; name="date"
+
+2026-10-27
+------WebKitFormBoundaryFE0iSL7LIhv3R99i
+Content-Disposition: form-data; name="time"
+
+10:00
+------WebKitFormBoundaryFE0iSL7LIhv3R99i
+Content-Disposition: form-data; name="name"
+
+Иван
+------WebKitFormBoundaryFE0iSL7LIhv3R99i
+Content-Disposition: form-data; name="phone"
+
++7 (999) 000-12-34
+---
+BOOKING RECEIVED: ------WebKitFormBoundarylA1j9XDuGFaf2A4P
+Content-Disposition: form-data; name="customer_id"
+
+1
+------WebKitFormBoundarylA1j9XDuGFaf2A4P
+Content-Disposition: form-data; name="post_id"
+
+13
+------WebKitFormBoundarylA1j9XDuGFaf2A4P
+Content-Disposition: form-data; name="date"
+
+2026-10-27
+------WebKitFormBoundarylA1j9XDuGFaf2A4P
+Content-Disposition: form-data; name="time"
+
+10:00
+------WebKitFormBoundarylA1j9XDuGFaf2A4P
+Content-Disposition: form-data; name="name"
+
+Иван
+------WebKitFormBoundarylA1j9XDuGFaf2A4P
+Content-Disposition: form-data; name="phone"
+
++7 (999) 000-12-34
+---
+BOOKING RECEIVED: ------WebKitFormBoundarymrxCPzkRNboXSjtk
+Content-Disposition: form-data; name="customer_id"
+
+1
+------WebKitFormBoundarymrxCPzkRNboXSjtk
+Content-Disposition: form-data; name="post_id"
+
+13
+------WebKitFormBoundarymrxCPzkRNboXSjtk
+Content-Disposition: form-data; name="date"
+
+2026-10-27
+------WebKitFormBoundarymrxCPzkRNboXSjtk
+Content-Disposition: form-data; name="time"
+
+10:00
+------WebKitFormBoundarymrxCPzkRNboXSjtk
+Content-Disposition: form-data; name="name"
+
+Иван
+------WebKitFormBoundarymrxCPzkRNboXSjtk
+Content-Disposition: form-data; name="phone"
+
++7 (999) 000-12-34
+---
+BOOKING RECEIVED: ------WebKitFormBoundary95yeEMjYf807EueH
+Content-Disposition: form-data; name="customer_id"
+
+1
+------WebKitFormBoundary95yeEMjYf807EueH
+Content-Disposition: form-data; name="post_id"
+
+13
+------WebKitFormBoundary95yeEMjYf807EueH
+Content-Disposition: form-data; name="date"
+
+2026-10-27
+------WebKitFormBoundary95yeEMjYf807EueH
+Content-Disposition: form-data; name="time"
+
+10:00
+------WebKitFormBoundary95yeEMjYf807EueH
+Content-Disposition: form-data; name="name"
+
+Иван
+------WebKitFormBoundary95yeEMjYf807EueH
+Content-Disposition: form-data; name="phone"
+
++7 (999) 000-12-34
+---
+BOOKING RECEIVED: ------WebKitFormBoundaryOA8DoPT93CgSl2e9
+Content-Disposition: form-data; name="customer_id"
+
+1
+------WebKitFormBoundaryOA8DoPT93CgSl2e9
+Content-Disposition: form-data; name="post_id"
+
+13
+------WebKitFormBoundaryOA8DoPT93CgSl2e9
+Content-Disposition: form-data; name="date"
+
+2026-10-27
+------WebKitFormBoundaryOA8DoPT93CgSl2e9
+Content-Disposition: form-data; name="time"
+
+10:00
+------WebKitFormBoundaryOA8DoPT93CgSl2e9
+Content-Disposition: form-data; name="name"
+
+Иван
+------WebKitFormBoundaryOA8DoPT93CgSl2e9
+Content-Disposition: form-data; name="phone"
+
++7 (999) 000-12-34
+---
+BOOKING RECEIVED: ------WebKitFormBoundaryWEgVrEijZkuGJLjm
+Content-Disposition: form-data; name="customer_id"
+
+1
+------WebKitFormBoundaryWEgVrEijZkuGJLjm
+Content-Disposition: form-data; name="post_id"
+
+13
+------WebKitFormBoundaryWEgVrEijZkuGJLjm
+Content-Disposition: form-data; name="date"
+
+2026-10-27
+------WebKitFormBoundaryWEgVrEijZkuGJLjm
+Content-Disposition: form-data; name="time"
+
+10:00
+------WebKitFormBoundaryWEgVrEijZkuGJLjm
+Content-Disposition: form-data; name="name"
+
+Иван
+------WebKitFormBoundaryWEgVrEijZkuGJLjm
+Content-Disposition: form-data; name="phone"
+
++7 (999) 000-12-34
+---
+BOOKING RECEIVED: ------WebKitFormBoundaryhuj3dwszn9cxg78F
+Content-Disposition: form-data; name="customer_id"
+
+1
+------WebKitFormBoundaryhuj3dwszn9cxg78F
+Content-Disposition: form-data; name="post_id"
+
+13
+------WebKitFormBoundaryhuj3dwszn9cxg78F
+Content-Disposition: form-data; name="date"
+
+2026-10-27
+------WebKitFormBoundaryhuj3dwszn9cxg78F
+Content-Disposition: form-data; name="time"
+
+10:00
+------WebKitFormBoundaryhuj3dwszn9cxg78F
+Content-Disposition: form-data; name="name"
+
+Иван
+------WebKitFormBoundaryhuj3dwszn9cxg78F
+Content-Disposition: form-data; name="phone"
+
++7 (999) 000-12-34
+---
+BOOKING RECEIVED: ------WebKitFormBoundaryWpfVexqCxuFYCgMA
+Content-Disposition: form-data; name="customer_id"
+
+1
+------WebKitFormBoundaryWpfVexqCxuFYCgMA
+Content-Disposition: form-data; name="post_id"
+
+13
+------WebKitFormBoundaryWpfVexqCxuFYCgMA
+Content-Disposition: form-data; name="date"
+
+2026-10-27
+------WebKitFormBoundaryWpfVexqCxuFYCgMA
+Content-Disposition: form-data; name="time"
+
+10:00
+------WebKitFormBoundaryWpfVexqCxuFYCgMA
+Content-Disposition: form-data; name="name"
+
+Иван
+------WebKitFormBoundaryWpfVexqCxuFYCgMA
+Content-Disposition: form-data; name="phone"
+
++7 (999) 000-12-34
+---

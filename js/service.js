@@ -136,6 +136,7 @@ let svcClientId = null;
 let svcIsClientRegistered = false;
 let svcClientCarsList = [];
 let svcClientLookupTimer = null;
+let svcLastLookupPhone = ''; // защита от повторного поиска при каждом blur
 
 function svcHint(text, color) {
     const el = document.getElementById('phoneCheckHint');
@@ -154,17 +155,20 @@ async function svcLookupClient(phone) {
     const carSelect = document.getElementById('svcClientCarSelect');
     const nameInput = document.getElementById('serviceName');
 
-    svcClientId = null;
-    svcIsClientRegistered = false;
-    svcClientCarsList = [];
-    if (carsContainer) carsContainer.style.display = 'none';
-    svcShowManualCar(false);
-
     const digits = phone.replace(/\D/g, '');
     if (digits.length < 11) {
         svcHint('Укажите номер телефона', '#777777');
         return;
     }
+    // Повторный поиск того же номера не нужен (blur + 11 цифр могут совпасть)
+    if (digits === svcLastLookupPhone && (svcIsClientRegistered || svcClientId === 0)) return;
+    svcLastLookupPhone = digits;
+
+    svcClientId = null;
+    svcIsClientRegistered = false;
+    svcClientCarsList = [];
+    if (carsContainer) carsContainer.style.display = 'none';
+    svcShowManualCar(false);
 
     svcHint('Проверка номера телефона...', '#1e5799');
 
@@ -236,6 +240,7 @@ async function svcLookupClient(phone) {
         console.error('Ошибка запроса check_client:', e);
         svcClientId = null;
         svcIsClientRegistered = false;
+        svcLastLookupPhone = ''; // при ошибке разрешаем повторный поиск
         if (carsContainer) carsContainer.style.display = 'none';
         svcHint('Укажите номер телефона', '#777777');
         svcShowManualCar(true);
@@ -712,6 +717,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 svcShowManualCar(false);
                 svcClientId = null;
                 svcIsClientRegistered = false;
+                svcLastLookupPhone = ''; // номер меняется — поиск нужно будет выполнить заново
             }
         });
         phoneEl.addEventListener('blur', function () {
@@ -765,6 +771,7 @@ document.addEventListener('DOMContentLoaded', function () {
             svcClientId = null;
             svcIsClientRegistered = false;
             svcClientCarsList = [];
+            svcLastLookupPhone = '';
             svcHint('Укажите номер телефона', '#777777');
 
             // Сброс выбора даты/времени -> текущая неделя, слоты чистим
