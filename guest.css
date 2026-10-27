@@ -473,50 +473,34 @@ body {
 .svc-items-grid .service-item { justify-content: flex-start; gap: 8px; }
 .svc-items-grid .service-item b { margin-left: auto; color: #1e5799; font-size: 12px; white-space: nowrap; }
 
-/* ===== service.html: пошаговая топология (стили — как в css.css / guest.css) ===== */
-.svc-step-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #222222;
-    margin: 22px 0 12px;
-    padding-bottom: 6px;
-    border-bottom: 1px dashed #cccccc;
+/* ===== service.html: пошаговая топология (шаги, категории, кнопка «Добавить услуги») ===== */
+.svc-step-title { font-size: 15px; font-weight: 700; color: #1e293b; margin: 18px 0 10px; }
+.svc-cat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.svc-cat-card {
+    display: flex; flex-direction: column; gap: 6px; cursor: pointer;
+    border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 12px; transition: all .15s ease; background: #fff;
 }
-.svc-tab-select-group { align-self: end; }
-
-/* Кнопка «Добавить услуги» — как второстепенная кнопка проекта (css.css .index-secondary-btn) */
+.svc-cat-card:hover { border-color: #1e5799; }
+.svc-cat-card input { display: none; }
+.svc-cat-card b { font-size: 14px; color: #1e293b; line-height: 1.3; }
+.svc-cat-card span { font-size: 11.5px; color: #64748b; line-height: 1.3; }
+.svc-cat-card.checked { border-color: #e30613; background: #fef2f2; box-shadow: 0 0 0 2px rgba(227,6,19,.12); }
 .svc-add-btn {
-    width: 100%;
-    padding: 12px 20px;
-    border: 1px solid #1e5799;
-    border-radius: 6px;
-    background: #ffffff;
-    color: #1e5799;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all .15s ease;
+    width: 100%; padding: 12px; border: 2px dashed #cbd5e1; border-radius: 10px; background: #f8fafc;
+    color: #475569; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .15s ease;
 }
-.svc-add-btn:hover { background: #f0f6ff; }
+.svc-add-btn:hover { border-color: #1e5799; color: #1e5799; }
 .svc-add-btn.suggest { border-color: #e30613; color: #e30613; background: #fff7f7; animation: svcPulse 1.6s infinite; }
 @keyframes svcPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(227,6,19,.18);} 50% { box-shadow: 0 0 0 6px rgba(227,6,19,0);} }
 
-/* Кнопки режима пакета в шинном калькуляторе — стиль week-btn из guest.css */
-.tc-packet-toggle { display: flex; gap: 10px; margin-bottom: 10px; }
+/* Кнопки режима пакета в шинном калькуляторе */
+.tc-packet-toggle { display: flex; gap: 8px; margin-bottom: 10px; }
 .tc-packet-btn {
-    flex: 1;
-    background-color: #f8f9fa;
-    border: 1px solid #dddddd;
-    color: #555555;
-    padding: 10px 12px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all .15s ease;
+    padding: 8px 16px; border: 2px solid #e2e8f0; border-radius: 8px; background: #fff;
+    font-weight: 600; font-size: 13px; color: #475569; cursor: pointer; transition: all .15s ease;
 }
-.tc-packet-btn:hover { border-color: #1e5799; color: #1e5799; }
-.tc-packet-btn.active { background-color: #1e5799; border-color: #1e5799; color: #ffffff; }
+.tc-packet-btn:hover { border-color: #1e5799; }
+.tc-packet-btn.active { background: #1e5799; border-color: #1e5799; color: #fff; }
 
 /* Превью размера колеса + бейдж LP */
 .tyre-calc-size-preview { font-size: 13px; color: #334155; margin-bottom: 12px; }
@@ -526,21 +510,14 @@ body {
     background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
 }
 
-/* ===== service.html: табы прочих услуг (стиль week-btn), кнопка под калькулятором, карточка клиента ===== */
-.svc-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+/* ===== service.html: табы прочих услуг, кнопка под калькулятором, карточка клиента ===== */
+.svc-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .svc-tab {
-    background-color: #f8f9fa;
-    border: 1px solid #dddddd;
-    color: #555555;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all .15s ease;
+    border: 1px solid #cbd5e1; background: #f8fafc; color: #334155;
+    padding: 7px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: .15s;
 }
 .svc-tab:hover { border-color: #1e5799; color: #1e5799; }
-.svc-tab.active { background-color: #1e5799; border-color: #1e5799; color: #ffffff; }
+.svc-tab.active { background: #1e5799; border-color: #1e5799; color: #fff; }
 .svc-tab-panel { display: none; }
 .svc-tab-panel.active { display: block; animation: svcTabIn .18s ease-out; }
 @keyframes svcTabIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
@@ -557,10 +534,12 @@ body {
 }
 .svc-reset-btn:hover { border-color: #e30613; color: #e30613; background: #fff7f7; }
 
-.svc-client-cars {
+.svc-client-info {
     border: 1px solid #bbf7d0; background: #f0fdf4; border-radius: 10px;
-    padding: 12px 14px; margin-bottom: 12px;
+    padding: 10px 12px; margin-bottom: 12px;
 }
-.svc-client-cars > label { font-weight: bold; color: #1e5799; display: block; margin-bottom: 6px; }
-.svc-car-manual { display: grid; grid-template-columns: 1fr 1fr; gap: 0 15px; }
-@media (max-width: 650px) { .svc-car-manual { grid-template-columns: 1fr; } }
+.svc-client-found { font-size: 13px; color: #15803d; font-weight: 600; margin-bottom: 8px; }
+.svc-client-found .sci-check { margin-right: 6px; }
+.svc-client-found .sci-name { margin-left: 6px; color: #166534; font-weight: 400; }
+/* Поле ручного ввода марки скрыто, когда клиент найден в базе */
+#svcCarManualWrap.is-hidden { display: none; }
