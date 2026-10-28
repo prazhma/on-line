@@ -36,8 +36,11 @@ function restoreSvcAddBtnHome() {
 
 function refreshServiceTyreCalculator() {
     loadTyrePrices().then(() => {
+        // ВАЖНО: calcTyrePrice() здесь НЕ вызываем — по ТЗ расчёта по умолчанию нет.
+        // Состояние калькулятора определяет applySliderState() внутри
+        // renderTyreCalculator(): слайдер выключен -> блок скрыт, итог пустой;
+        // слайдер включён -> идёт расчёт.
         renderTyreCalculator();
-        calcTyrePrice();
         updateServiceSummary();
         checkAndLoadSlots(); // длительность визита могла измениться -> обновить слоты
         // после расчёта — предложить добавить другие работы
