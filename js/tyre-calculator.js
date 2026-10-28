@@ -209,6 +209,10 @@ function renderTyreCalculator() {
     // Вставляем калькулятор в слот «Выбор работ» (service.html), сразу под ним —
     // кнопка «Добавить услуги» с табами прочих работ. Калькулятор — основная работа,
     // показывается по умолчанию.
+    // ВАЖНО: box добавляем в DOM ПЕРВЫМ делом. Пока элемент вне документа,
+    // document.getElementById('tcSlider') из-за getByName-перехватки форм
+    // возвращает input ещё до его вставки — слушатели повесились бы на
+    // оторванный узел и переключатель не работал бы.
     const summaryBox = document.getElementById('summaryBox');
     const slot = document.getElementById('svcTyreCalcSlot');
     const extraWrap = document.querySelector('.svc-extra-wrap');
